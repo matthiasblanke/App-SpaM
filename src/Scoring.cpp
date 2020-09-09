@@ -1,0 +1,314 @@
+/**
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 3 of
+ * the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * General Public License for more details at
+ * http://www.gnu.org/copyleft/gpl.html
+ *
+ * author: Matthias Blanke
+ * mail  : matthias.blanke@biologie.uni-goettingen.de
+ */
+
+#include <cmath>
+#include <limits>
+#include <iostream>
+#include <fstream>
+#include <math.h>
+#include "Scoring.h"
+#include "Tree.h"
+#include <vector>
+
+
+Scoring::Scoring() {
+
+}
+
+/** Calculate jk-corrected distances between fswm based on mismatch counts. */
+void Scoring::calculate_fswm_distances() {
+	double substFreq = 0;	// Calculated plain substitution frequency
+	double transitionFreq = 0;
+	double transversionFreq = 0;
+	double jk = 0;			// Jukes-Cantor corrected substitution frequency
+
+	scoringMap_t::iterator it1 = scoringMap.begin();
+	countMap_t::iterator it2 = mismatchCount.begin();
+	countMap_t::iterator it3 = spacedWordMatchCount.begin();
+
+	while (it1 != scoringMap.end()) { 	// Iterate through reads
+
+		seqIDtoScoring_t::iterator it11 = it1->second.begin();
+		seqIDtoCount_t::iterator it21 = it2->second.begin();
+		seqIDtoCount_t::iterator it31 = it3->second.begin();
+
+		while (it11 != it1->second.end()) {		// Iterate through genomes
+			if (it31->second <= 0) { 			// Reads with not matches get default distance
+				it11->second = fswm_params::g_defaultDistance;
+			}
+			else {
+				substFreq = (double) it21->second / (it31->second * fswm_params::g_spaces);
+				jk = -0.75 * log(1.0 - ((4.0/3.0) * substFreq));
+
+				it11->second = jk;
+			}
+			it11++;
+			it21++;
+			it31++;
+		}
+		it1++;
+		it2++;
+		it3++;
+	}
+}
+
+/** Assign reads to reference tree of genome. */
+void Scoring::phylogenetic_placement() {
+	Tree tree(fswm_params::g_reftreefname);				// Read and create reference tree
+	tree.write_jplace_data_beginning();
+	int min_j;											// Currently minimum assigned genome. -1 for unassigned.
+	countMap_t::iterator countMap_it = spacedWordMatchCount.begin();
+
+	std::unordered_map<seq_id_t, bool> readAssignmentTracker;  // Track which reads were assigned and which not (only reads that have at least one entry are assigned)
+	for (const auto &read : fswm_internal::readIDsToNames) {
+		readAssignmentTracker[read.first] = false;             // Later on: assign reads that have not been assigned by algorithm to root of tree
+	}
+
+	bool first = true;
+   	for (scoringMap_t::iterator scoringMap_it = scoringMap.begin(); scoringMap_it != scoringMap.end(); scoringMap_it++) {		// Iterate through reads
+		min_j = -1;
+
+		if (fswm_params::g_assignmentMode == "BESTCOUNT") {
+			min_j = tree.get_node_best_count(countMap_it);
+		}
+		else if (fswm_params::g_assignmentMode == "BESTSCORE") {
+			min_j = tree.get_node_best_score(scoringMap_it);
+		}
+		else if (fswm_params::g_assignmentMode == "LCACOUNT") {
+			min_j = tree.get_LCA_best_count(countMap_it);
+		}
+		else if (fswm_params::g_assignmentMode == "LCASCORE") {
+			min_j = tree.get_LCA_best_score(scoringMap_it);
+		}
+		else if (fswm_params::g_assignmentMode == "DESCENTCOUNT") {
+			min_j = tree.get_node_root_descent_best_count(countMap_it);
+		}
+		else if (fswm_params::g_assignmentMode == "DESCENTSCORE") {
+			min_j = tree.get_node_root_descent_best_score(scoringMap_it);
+		}
+		else if (fswm_params::g_assignmentMode == "BESTWEIGHTED") {
+			min_j = tree.get_node_best_weighted(scoringMap_it, countMap_it);
+		}
+		else if (fswm_params::g_assignmentMode == "LCAWEIGHTED") {
+			min_j = tree.get_LCA_best_weighted(scoringMap_it, countMap_it);
+		}
+		else if (fswm_params::g_assignmentMode == "DESCENDWEIGHTED") {
+			min_j = tree.get_node_root_descent_best_weighted_score(scoringMap_it, countMap_it);
+		}
+		else if (fswm_params::g_assignmentMode == "SCOREALL") {
+			tree.score_all(scoringMap_it, countMap_it, first);
+		}
+		else if (fswm_params::g_assignmentMode == "SAS") {
+			tree.score_all_avg_sim_score(scoringMap_it, countMap_it, first);
+		}
+		else if (fswm_params::g_assignmentMode == "SAC") {
+			tree.score_all_avg_sim_count(scoringMap_it, countMap_it, first);
+		}
+		first = false;
+		readAssignment.push_back(std::pair<seq_id_t, int> (scoringMap_it->first, min_j));  // assign read to some internal leave, determined based on assignment mode
+		readAssignmentTracker[scoringMap_it->first] = true;
+
+		countMap_it++;
+   	}
+
+   	for (const auto &read : readAssignmentTracker) {  // Assign all reads that were not assigned so far to root
+   		if (!read.second) {
+   			readAssignment.push_back(std::pair<seq_id_t, int> (read.first, tree.get_rootID()));
+   		}
+   	}
+
+   	if (fswm_params::g_assignmentMode != "APPLES" and fswm_params::g_assignmentMode != "SAS" and fswm_params::g_assignmentMode != "SAC" and fswm_params::g_assignmentMode != "SCOREALL") {
+   		tree.write_jplace_placement_data(readAssignment);
+   	}
+   	tree.write_jplace_data_end();
+
+   	tree.write_newick(fswm_params::g_outfoldername + "tree.nwk");
+}
+
+void Scoring::phylo_kmer_placement() {
+	if (fswm_params::phylo_placement_mode == "ALLBEST") {
+		phylo_kmer_placement_all_best();
+	}
+	else if (fswm_params::phylo_placement_mode == "BEST") {
+		phylo_kmer_placement_best();
+	}
+	else if (fswm_params::phylo_placement_mode == "PATH") {
+		phylo_kmer_placement_path();
+	}
+}
+
+void Scoring::phylo_kmer_placement_all_best() {
+	Tree tree(fswm_params::g_reftreefname);
+	tree.write_jplace_data_beginning();
+	int best_lca;
+	bool first = true;
+
+	//Search for LCA with highest count
+	for (auto const &entry : fswm_internal::lcasOfReads){
+
+		int max_count = 0;
+		int how_often_max_count = 0;
+		for (auto const &lcasCountMap : entry.second) {
+			if (lcasCountMap.second > max_count) {
+				max_count = lcasCountMap.second;
+				best_lca = lcasCountMap.first;
+				how_often_max_count = 0;
+			}
+			if (lcasCountMap.second == max_count) {
+				how_often_max_count++;
+			}
+		}
+
+
+		std::vector<std::pair<seq_id_t, double>> placements;
+
+		std::vector<seq_id_t> lcas_with_max_count;
+		double sum = how_often_max_count * max_count;
+		for (auto const &lcasCountMap : entry.second) {
+			if (lcasCountMap.second == max_count) {
+				placements.push_back(std::pair<seq_id_t, double> (lcasCountMap.first, max_count / sum));
+				// std::cout << lcasCountMap.first << ", ";
+			}
+		}
+		// std::cout << std::endl;
+		tree.write_multiple_jplace(placements, first, entry.first);
+
+		first = false;
+	}
+
+	tree.write_jplace_data_end();
+}
+
+void Scoring::phylo_kmer_placement_path() {
+	Tree tree(fswm_params::g_reftreefname);
+	tree.write_jplace_data_beginning();
+	seq_id_t best_lca;
+
+	std::unordered_map<seq_id_t, bool> readAssignmentTracker;  // Track which reads were assigned and which not (only reads that have at least one entry are assigned)
+	for (const auto &read : fswm_internal::readIDsToNames) {
+		readAssignmentTracker[read.first] = false;             // Later on: assign reads that have not been assigned by algorithm to root of tree
+	}
+
+	//Search for LCA with highest count
+	for (auto &entry : fswm_internal::lcasOfReads){
+
+		tree.reset_weights();
+		tree.set_weights_to_lca_counts(entry.second);
+		tree.fill_internals_sum_count_phylokmers();
+		best_lca = tree.get_node_root_descent_best_path();
+
+		readAssignment.push_back(std::pair<seq_id_t, int> (entry.first, best_lca));  // assign read to some internal leave, determined based on assignment mode
+		readAssignmentTracker[entry.first] = true;
+	}
+
+	for (const auto &read : readAssignmentTracker) {  // Assign all reads that were not assigned so far to root
+   		if (!read.second) {
+   			readAssignment.push_back(std::pair<seq_id_t, int> (read.first, tree.get_rootID()));
+   		}
+   	}
+
+	tree.write_jplace_placement_data(readAssignment);
+	tree.write_jplace_data_end();
+}
+
+void Scoring::phylo_kmer_placement_best() {
+	Tree tree(fswm_params::g_reftreefname);
+	tree.write_jplace_data_beginning();
+	seq_id_t best_lca;
+
+	std::unordered_map<seq_id_t, bool> readAssignmentTracker;  // Track which reads were assigned and which not (only reads that have at least one entry are assigned)
+	for (const auto &read : fswm_internal::readIDsToNames) {
+		readAssignmentTracker[read.first] = false;             // Later on: assign reads that have not been assigned by algorithm to root of tree
+	}
+
+	//Search for LCA with highest count
+	for (auto const &entry : fswm_internal::lcasOfReads){
+
+		int max_count = 0;
+		for (auto const &lcasCountMap : entry.second) {
+			if (lcasCountMap.second > max_count) {
+				max_count = lcasCountMap.second;
+				best_lca = lcasCountMap.first;
+			}
+		}
+
+		readAssignment.push_back(std::pair<seq_id_t, int> (entry.first, best_lca));  // assign read to some internal leave, determined based on assignment mode
+		readAssignmentTracker[entry.first] = true;
+	}
+
+	for (const auto &read : readAssignmentTracker) {  // Assign all reads that were not assigned so far to root
+   		if (!read.second) {
+   			readAssignment.push_back(std::pair<seq_id_t, int> (read.first, tree.get_rootID()));
+   		}
+   	}
+
+	tree.write_jplace_placement_data(readAssignment);
+	tree.write_jplace_data_end();
+}
+
+/** Write jk-corrected distances between all reads and genomes to file. */
+void Scoring::write_scoring_to_file() {
+	std::ofstream results;
+	results.open(fswm_params::g_outfoldername + "scoring_list.txt");
+
+	scoringMap_t::iterator it1 = scoringMap.begin();
+	while (it1 != scoringMap.end()) {
+		seqIDtoScoring_t::iterator it11 = it1->second.begin();
+		while (it11 != it1->second.end()) {
+			results << it1->first << "\t" << it11->first << "\t" << it11->second << std::endl;
+			it11++;
+		}
+		it1++;
+	}
+	results.close();
+}
+
+/** Write jk-corrected distances between reads and genomes to table. */
+void Scoring::write_scoring_to_file_as_table() {
+	std::ofstream results;
+	results.open(fswm_params::g_outfoldername + "scoring_table.txt");
+
+	for (auto genome : fswm_internal::genomeIDsToNames) {		// Write columns names (references to file)
+		results << "\t" << genome.second;
+	}
+	results << std::endl;
+
+	std::unordered_map<seq_id_t, std::string> seqIDtoNamesMap;
+	seqIDtoNamesMap = fswm_internal::readIDsToNames;
+
+	for (auto read : seqIDtoNamesMap) {		// For all reads: write distances to all genomes to file
+		results << read.second;
+
+		if (scoringMap.find(read.first) != scoringMap.end()) {					// If read has distances to any genome
+			for (auto genome : fswm_internal::genomeIDsToNames) {	// Write those distances to file and use
+				if (scoringMap[read.first].find(genome.first) != scoringMap[read.first].end()) {
+					results << "\t" << scoringMap[read.first][genome.first];
+				}
+				else {
+					results << "\t" << fswm_params::g_defaultDistance;
+				}
+			}
+		}
+		else {
+			for (auto genome : fswm_internal::genomeIDsToNames) {	// Write those distances to file and use
+				results << "\t" << fswm_params::g_defaultDistance;
+			}
+		}
+		results << std::endl;
+	}
+
+	results.close();
+}
