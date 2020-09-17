@@ -49,8 +49,6 @@ void ReadManager::get_next_partition_BucketManager(std::vector<Seed> &seeds, Buc
 		currentSeq++;
 	}
 
-	bucketManagerReads.create_wordGroups();
-
 	currentPartition++;
 }
 

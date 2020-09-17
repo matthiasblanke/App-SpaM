@@ -49,10 +49,8 @@ GenomeManager::GenomeManager(std::string genomesfname, std::vector<Seed> &seeds)
 		fswm_internal::namesToGenomeIDs[header] = seqID;
 	}
 
-	genomes.clear();
-	genomes.shrink_to_fit();
-
-	bucketManagerGenomes.create_wordGroups();
+	//genomes.clear();
+	//genomes.shrink_to_fit();
 }
 
 /**

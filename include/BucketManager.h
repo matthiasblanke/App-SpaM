@@ -18,49 +18,28 @@
 
 #include <unordered_map>
 #include "Bucket.h"
-#include "Word.h"
 #include "Scoring.h"
+#include "GlobalParameters.h"
 
 class BucketManager {
 
 	private:
-		int32_t bucketCount;
-		std::unordered_map<minimizer_t,Bucket> minimizersToBuckets;
-		std::vector<minimizer_t> minimizers;
+		std::unordered_map<minimizer_t,std::unordered_map<bool, std::pair<seq_id_t, pos_t>>> minimizersToBuckets;
 
 	public:
 		// Constructors
 		BucketManager();
 
 		// Functions
-		bool insert_word(Word &word);
-		bool sort_words_in_buckets();
-		bool create_wordGroups();
-
-		// Debug functions
-		bool print_bucket_information() const;
-
-		// Get & Set
-		int get_bucketCount() const;
-		std::vector<minimizer_t> get_minimizers();
-		Bucket get_bucket(minimizer_t minimizer);
+		void insert_word(minimizer_t minimizer, seq_id_t seq_id, pos_t seq_pos);
 };
 
-inline bool BucketManager::insert_word(Word &word) {
-	minimizersToBuckets.find(word.minimizer)->second.add_word(word);
-	return true;
-}
+inline void BucketManager::insert_word(minimizer_t minimizer, seq_id_t seq_id, pos_t seq_pos) {
 
-inline int BucketManager::get_bucketCount() const {
-	return bucketCount;
-}
-
-inline std::vector<minimizer_t> BucketManager::get_minimizers() {
-	return minimizers;
-}
-
-inline Bucket BucketManager::get_bucket(minimizer_t minimizer) {
-	return minimizersToBuckets.find(minimizer)->second;
+	if (minimizersToBuckets.find(minimizer) == minimizersToBuckets.end()){
+		minimizersToBuckets[minimizer] = std::unordered_map<bool, std::pair<seq_id_t, pos_t>>();
+	}
+	minimizersToBuckets[minimizer][isQuery] = std::pair<seq_id_t, pos_t>(seq_id, seq_pos);
 }
 
 #endif

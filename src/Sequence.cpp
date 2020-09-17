@@ -62,7 +62,7 @@ Sequence::Sequence(std::string &header, std::string &seqLine, seq_id_t seqID) {
 /**
  * Go through sequence and fill buckets with spaced words in sequence.
  */
-void Sequence::fill_buckets(std::vector<Seed> &seeds, BucketManager &bucketManager) {
+void Sequence::fill_buckets(std::vector<Seed> &seeds, BucketManager &bucketManager, bool isQuery = false) {
 
 	const size_t NumBytes = 8;
 
@@ -70,64 +70,46 @@ void Sequence::fill_buckets(std::vector<Seed> &seeds, BucketManager &bucketManag
 		std::vector<int> matchPos = seed.get_matchPos();
 		std::vector<int> dontCarePos = seed.get_dontCarePos();
 
-	// Go through all spaced words in sequence and save to bucket
-	uint32_t go_until = std::max(int(seq.size() - fswm_params::g_weight - fswm_params::g_spaces + 1), 0);
-	for (uint32_t i = 0; i < go_until; i++) {
-		// Create spaced word at position i and give word to BucketManager for further processing
-		word_t matches = 0;
-		for (auto const &pos : matchPos) {
-			matches = matches << 2;
-			matches += seq[i+pos];
-		}
+		// Go through all spaced words in sequence and save to bucket
+		uint32_t go_until = std::max(int(seq.size() - fswm_params::g_weight - fswm_params::g_spaces + 1), 0);
+		for (uint32_t i = 0; i < go_until; i++) {
+			// Create spaced word at position i and give word to BucketManager for further processing
+			word_t matches = 0;
+			for (auto const &pos : matchPos) {
+				matches = matches << 2;
+				matches += seq[i+pos];
+			}
 	
-		// Create spaced word at position i and give word to BucketManager for further processing
-		word_t dontCares = 0;
-		for (auto const &pos : dontCarePos) {
-			dontCares = dontCares << 2;
-			dontCares += seq[i+pos];
-		}
-
-		if (fswm_params::g_sampling) {
-			auto res = crc32_fast(&matches, NumBytes);
-			if (res < fswm_params::g_minHashLowerLimit) {
-				Word newWord = Word(seqID, i, matches, dontCares);
-				bucketManager.insert_word(newWord);
+			if (fswm_params::g_sampling) {
+				auto res = crc32_fast(&matches, NumBytes);
+				if (res < fswm_params::g_minHashLowerLimit) {
+					bucketManager.insert_word(matches, seqID, i, isQuery);
+				}
+			}
+			else {
+				bucketManager.insert_word(matches, seqID, i, isQuery);
 			}
 		}
-		else {
-			Word newWord = Word(seqID, i, matches, dontCares);
-			bucketManager.insert_word(newWord);
-		}
-	}
 
-	for (uint32_t i = 0; i < go_until; i++) {
-		// Create spaced word at position i and give word to BucketManager for further processing
-		word_t matches = 0;
+		for (uint32_t i = 0; i < go_until; i++) {
+			// Create spaced word at position i and give word to BucketManager for further processing
+			word_t matches = 0;
 
-		for (auto const &pos : matchPos) {
-			matches = matches << 2;
-			matches += seqRev[i+pos];
-		}
-	
-		// Create spaced word at position i and give word to BucketManager for further processing
-		word_t dontCares = 0;
-		for (auto const &pos : dontCarePos) {
-			dontCares = dontCares << 2;
-			dontCares += seqRev[i+pos];
-		}
-
-		if (fswm_params::g_sampling) {
-			auto res = crc32_fast(&matches, NumBytes);
-			if (res < fswm_params::g_minHashLowerLimit) {
-				Word newWord = Word(seqID, i, matches, dontCares);
-				bucketManager.insert_word(newWord);
+			for (auto const &pos : matchPos) {
+				matches = matches << 2;
+				matches += seqRev[i+pos];
 			}
-		}
-		else {
-			Word newWord = Word(seqID, i, matches, dontCares);
-			bucketManager.insert_word(newWord);
-		}
+
+			if (fswm_params::g_sampling) {
+				auto res = crc32_fast(&matches, NumBytes);
+				if (res < fswm_params::g_minHashLowerLimit) {
+					bucketManager.insert_word(matches, seqID, i, isQuery);
+				}
+			}
+			else {
+				bucketManager.insert_word(matches, seqID, i, isQuery);
+			}
 		
-	}
+		}
 	}
 }
