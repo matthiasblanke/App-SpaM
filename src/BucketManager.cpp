@@ -18,5 +18,9 @@
 #include "BucketManager.h"
 
 BucketManager::BucketManager() {
+	this->isQuery = false;
+}
 
+BucketManager::BucketManager(bool isQuery = false) {
+	this->isQuery = isQuery;
 }

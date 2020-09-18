@@ -19,7 +19,7 @@
 #include <string>
 #include <vector>
 #include <iostream>
-#include "Word.h"
+#include "GlobalParameters.h"
 
 struct Node {
 	std::string name;				// Node name should be identical to reference sequence name for leaves

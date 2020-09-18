@@ -18,7 +18,6 @@
 #include "BucketManager.h"
 #include "GenomeManager.h"
 #include "ReadManager.h"
-#include "Sequence.h"
 #include "Algorithms.h"
 #include "Tree.h"
 #include "GlobalParameters.h"
@@ -29,8 +28,6 @@
 #include "Algorithms.h"
 #include "Scoring.h"
 #include "SubstitutionMatrix.h"
-#include "Match.h"
-#include "MatchManager.h"
 
 void Placement::phylogenetic_placement() {
 	// Initialize pattern
@@ -46,65 +43,40 @@ void Placement::phylogenetic_placement() {
 
 	std::cout << "pattern size : " << patterns.size() << std::endl;
 
-	std::vector<Seed> seeds;
 	for (int i = 0; i < fswm_params::g_numPatterns; i++) {
 		Seed seed(fswm_params::g_weight, fswm_params::g_spaces);
 		seed.generate_pattern(patterns[i]);
-		seeds.push_back(seed);
+		fswm_internal::seeds.push_back(seed);
 	}
 
 	// Read reads
-	ReadManager	readManager(fswm_params::g_readsfname);
+	ReadManager	readManager(fswm_params::g_readsfname, fswm_internal::seeds);
 
 	// Read genomes, create spaced words and organize BucketManagers
-	GenomeManager genomeManager(fswm_params::g_genomesfname, seeds);
-
-	// Create phylokmers if necessary
-	if (fswm_params::g_assignmentMode == "PHYLOKMERS") {
-		BucketManager bucketManagerGenomes = genomeManager.get_BucketManager();
-		Tree tree(fswm_params::g_reftreefname);
-		tree.build_phylokmer_db(bucketManagerGenomes);
-	}
+	GenomeManager genomeManager(fswm_params::g_genomesfname, fswm_internal::seeds);
 
 	// Create empty output files
 	Placement::create_output_files();
 
 	// Compare buckets of reads and genomes
 	std::cout << "-> Compare reads and genomes." << std::endl;
-	#pragma omp parallel for
-	for (int currentPartition = 0; currentPartition < readManager.get_partitions(); currentPartition++) {
-		std::cout << "Starting partition " << currentPartition << std::endl;
+	// #pragma omp parallel for
 
-		BucketManager bucketManagerReads;
-		readManager.get_next_partition_BucketManager(seeds, bucketManagerReads);
+	Scoring fswm_distances = Scoring();
 
-		Scoring fswm_distances = Scoring();
+	BucketManager bucketManagerGenomes = genomeManager.get_BucketManager();
+	BucketManager bucketManagerReads = readManager.get_BucketManager();
+	Algorithms::fswm_complete(bucketManagerGenomes, bucketManagerReads, fswm_distances);
 
-		if (fswm_params::g_assignmentMode == "PHYLOKMERS") {
-			Algorithms::match_reads_against_phyloDB(bucketManagerReads);
-		}
-		else {
-			BucketManager bucketManagerGenomes = genomeManager.get_BucketManager();
-			Algorithms::fswm_complete(bucketManagerGenomes, bucketManagerReads, fswm_distances);
-		}
+	{
+		std::cout << "-> Calculate distances." << std::endl;
+		fswm_distances.calculate_fswm_distances();
+		std::cout << "-> Placing reads in reference tree." << std::endl;
+		fswm_distances.phylogenetic_placement();
 
-		#pragma omp critical
-		{
-			if (fswm_params::g_assignmentMode == "PHYLOKMERS") {
-				fswm_distances.phylo_kmer_placement();
-				// tree.write_phyloDB_toFile();
-			}
-			else {
-				std::cout << "-> Calculate distances." << std::endl;
-				fswm_distances.calculate_fswm_distances();
-				std::cout << "-> Placing reads in reference tree." << std::endl;
-				fswm_distances.phylogenetic_placement();
-
-				if (fswm_params::g_writeScoring or fswm_params::g_assignmentMode == "APPLES") {
-					fswm_distances.write_scoring_to_file();
-					fswm_distances.write_scoring_to_file_as_table();
-				}
-			}
+		if (fswm_params::g_writeScoring or fswm_params::g_assignmentMode == "APPLES") {
+			fswm_distances.write_scoring_to_file();
+			fswm_distances.write_scoring_to_file_as_table();
 		}
 	}
 

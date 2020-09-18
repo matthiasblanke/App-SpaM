@@ -18,46 +18,19 @@
 #include "ReadManager.h"
 #include "SeqIO.h"
 
-ReadManager::ReadManager(std::string readsfname) {
+ReadManager::ReadManager(std::string readsfname, std::vector<Seed> &seeds) {
 	if (fswm_params::g_verbose) { std::cout << "-> Reading reads from file: " << readsfname << std::endl; }
 
-	SeqIO::read_sequences(readsfname, reads);
-	if (fswm_params::g_verbose) { std::cout << "\t" << reads.size() << " reads found and read."<< std::endl; }
+	bucketManagerReads = BucketManager(true);
 
-	partitions = ceil((double) reads.size() / fswm_params::g_readBlockSize);
-	if (fswm_params::g_verbose) { std::cout << "\tDividing into " << partitions << " partitions" << std::endl; }
-
-	this->readCount = reads.size();
-	this->currentSeq = 0;
-	this->currentPartition = 0;
+	SeqIO::read_sequences(readsfname, false, bucketManagerReads);
 }
 
 /**
- * Return BucketManager for the next partition of reads from input read sequences.
+ * Return BucketManager for the next partition of genomes from input sequences.
  */
-void ReadManager::get_next_partition_BucketManager(std::vector<Seed> &seeds, BucketManager &bucketManagerReads) {
-
-	if (fswm_params::g_verbose) { std::cout << "\t-> Creating spaced words for read partition " << currentPartition << std::endl; }
-
-	fswm_internal::readIDsToNames.clear();
-	fswm_internal::namesToReadIDs.clear();
-
-	for (int i = 0; i < fswm_params::g_readBlockSize and currentSeq < reads.size(); i++) {
-		reads[currentSeq].fill_buckets(seeds, bucketManagerReads);
-		fswm_internal::readIDsToNames[reads[currentSeq].get_seqID()] = reads[currentSeq].get_header();
-		fswm_internal::namesToReadIDs[reads[currentSeq].get_header()] = reads[currentSeq].get_seqID();		
-		currentSeq++;
-	}
-
-	currentPartition++;
-}
-
-uint32_t ReadManager::get_partitions() const {
-	return partitions;
-}
-
-std::vector<Sequence>& ReadManager::get_reads() {
-	return reads;
+BucketManager ReadManager::get_BucketManager() {
+	return (bucketManagerReads);
 }
 
 uint32_t ReadManager::get_readCount() const {

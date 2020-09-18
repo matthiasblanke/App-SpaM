@@ -20,6 +20,7 @@
 #include <limits>
 #include <unordered_set>
 #include <string>
+#include <algorithm>
 #include "Tree.h"
 #include "SubstitutionMatrix.h"
 

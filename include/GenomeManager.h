@@ -32,20 +32,19 @@
 
 #include <string>
 #include <unordered_map>
-#include "Sequence.h"
+#include "BucketManager.h"
+#include "Seed.h"
 
 class GenomeManager {
 	private:
-		std::vector<Sequence> genomes;
 		BucketManager bucketManagerGenomes;
     	uint32_t genomeCount;
 
 	public:
 		GenomeManager(std::string genomesfname, std::vector<Seed> &seeds);
-		BucketManager get_BucketManager();
+		BucketManager& get_BucketManager();
 
 		// Getter and Setter
-		std::vector<Sequence>& get_genomes();
 		uint32_t get_genomeCount() const;
 };
 

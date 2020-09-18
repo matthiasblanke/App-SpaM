@@ -22,6 +22,7 @@
 #include "Scoring.h"
 #include "BucketManager.h"
 #include "Algorithms.h"
+#include "GlobalParameters.h"
 
 class Tree {
 	private:

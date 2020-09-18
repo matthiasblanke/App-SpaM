@@ -71,9 +71,10 @@ std::unordered_map<std::string, seq_id_t> fswm_internal::namesToReadIDs = std::u
 std::unordered_map<seq_id_t, seq_id_t> fswm_internal::IDsToPlacementIDs = std::unordered_map<seq_id_t, seq_id_t>();
 std::unordered_map<seq_id_t, seq_id_t> fswm_internal::placementIDsToIDs = std::unordered_map<seq_id_t, seq_id_t>();
 
-std::unordered_map<word_t, seq_id_t> fswm_internal::phyloDB = std::unordered_map<word_t, seq_id_t>();
+std::unordered_map<seq_id_t, std::vector<char>> fswm_internal::referenceSequences = std::unordered_map<seq_id_t, std::vector<char>>();
+std::unordered_map<seq_id_t, std::vector<char>> fswm_internal::querySequences = std::unordered_map<seq_id_t, std::vector<char>>();
 
-std::unordered_map<seq_id_t, std::unordered_map<seq_id_t, int>> fswm_internal::lcasOfReads = std::unordered_map<seq_id_t, std::unordered_map<seq_id_t, int>>();
+std::vector<Seed> fswm_internal::seeds;
 
 int fswm_internal::g_numberGenomes = 0;
 

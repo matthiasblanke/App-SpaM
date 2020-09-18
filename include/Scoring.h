@@ -19,7 +19,7 @@
 #include <unordered_map>
 #include <string>
 #include <vector>
-#include "Word.h"
+#include "GlobalParameters.h"
 
 // Unordered map from sequence IDs to integer counts used e.g. for mismatches and number of spaced words
 typedef std::unordered_map<seq_id_t,count_t> seqIDtoCount_t;

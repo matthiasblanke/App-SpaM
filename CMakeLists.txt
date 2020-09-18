@@ -12,7 +12,7 @@ include_directories(./include ./src)
 file(GLOB appspam_SOURCES "./src/*.cpp")
 
 # target
-add_executable(appspam ./src/Bucket.cpp ./src/Seed.cpp ./src/APPSPAM.cpp ./src/Pattern.cpp ./src/Sequence.cpp ./src/Word.cpp ./src/BucketManager.cpp ./src/ReadManager.cpp ./src/Tree.cpp ./src/Node.cpp ./src/GenomeManager.cpp ./src/Algorithms.cpp ./src/Scoring.cpp ./src/GlobalParameters.cpp ./src/SeqIO.cpp ./src/Match.cpp ./src/MatchManager.cpp ./src/Placement.cpp ./src/Crc32.cpp)
+add_executable(appspam ./src/Seed.cpp ./src/APPSPAM.cpp ./src/Pattern.cpp ./src/BucketManager.cpp ./src/ReadManager.cpp ./src/Tree.cpp ./src/Node.cpp ./src/GenomeManager.cpp ./src/Algorithms.cpp ./src/Scoring.cpp ./src/GlobalParameters.cpp ./src/SeqIO.cpp ./src/Placement.cpp ./src/Crc32.cpp)
 
 FIND_PACKAGE( OpenMP)
       if(OPENMP_FOUND)

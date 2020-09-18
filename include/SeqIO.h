@@ -17,12 +17,15 @@
 #ifndef FSWM_SEQIO_H_
 #define FSWM_SEQIO_H_
 
-#include "Sequence.h"
+#include "GlobalParameters.h"
+#include "Crc32.h"
+#include "BucketManager.h"
 
 class SeqIO {
     public:
     	static seq_id_t seqID_counter;
-        static void read_sequences(std::string fastafname, std::vector<Sequence> &sequences);
+        static void read_sequences(std::string fastafname, bool isQuery, BucketManager &bucketManager);
+        static void parse_sequence(std::string header, std::string seqLine, seq_id_t seq_id, bool isQuery, BucketManager &bucketManager);
        	static void reset_seqID_counter();
 };
 

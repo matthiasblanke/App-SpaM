@@ -22,7 +22,7 @@
 seq_id_t SeqIO::seqID_counter = -1;
 
 // Read sequence from fasta file 'filename'
-void SeqIO::read_sequences(std::string fastafname, std::vector<Sequence> &sequences) {
+void SeqIO::read_sequences(std::string fastafname, bool isQuery, BucketManager &bucketManager) {
     std::ifstream fastafstream(fastafname);
     std::string line;
     std::string header;
@@ -35,7 +35,84 @@ void SeqIO::read_sequences(std::string fastafname, std::vector<Sequence> &sequen
         header = header.substr(0, header.find(' '));
         last_header = header;
         std::getline(fastafstream, line, '>');
-        sequences.push_back(Sequence(header, line, SeqIO::seqID_counter));
+        parse_sequence(header, line, SeqIO::seqID_counter, isQuery, bucketManager);
     }
     fastafstream.close();
+}
+
+void SeqIO::parse_sequence(std::string header, std::string seqLine, seq_id_t seqID, bool isQuery, BucketManager &bucketManager) {
+    std::vector<char> seq;
+    seq.reserve(seqLine.size()*2);
+
+    // Create normal sequence and its reverse
+    for (std::string::iterator it = seqLine.begin(); it != seqLine.end(); it++) {
+        if (!std::isspace(*it)) {
+            char c = std::toupper(*it);
+            switch(c) {
+                case 'A': seq.push_back(0x00); break;
+                case 'C': seq.push_back(0x01); break;
+                case 'G': seq.push_back(0x02); break;
+                case 'T': seq.push_back(0x03); break;
+                case 'U': seq.push_back(0x03); break;
+                default:  break;
+            }
+        }
+    }
+
+    for (std::string::reverse_iterator rit = seqLine.rbegin(); rit != seqLine.rend(); rit++) {
+        if (!std::isspace(*rit)) {
+            char c = std::toupper(*rit);
+            switch(c) {
+                case 'A': seq.push_back(0x03); break;
+                case 'C': seq.push_back(0x02); break;
+                case 'G': seq.push_back(0x01); break;
+                case 'T': seq.push_back(0x00); break;
+                case 'U': seq.push_back(0x00); break;
+                default: break;
+            }
+        }
+    }
+
+    if (isQuery) {
+        fswm_internal::querySequences[seqID] = seq;
+    }
+    else {
+        fswm_internal::referenceSequences[seqID] = seq;
+    }
+    
+    const size_t NumBytes = 8;
+
+    for (auto &seed : fswm_internal::seeds) {
+        std::vector<int> matchPos = seed.get_matchPos();
+
+        // Go through all spaced words in sequence and save to bucket
+        uint32_t go_until = std::max(int(seq.size() - fswm_params::g_weight - fswm_params::g_spaces + 1), 0);
+        for (uint32_t i = 0; i < go_until; i++) {
+            // Create spaced word at position i and give word to BucketManager for further processing
+            word_t matches = 0;
+            for (auto const &pos : matchPos) {
+                matches = matches << 2;
+                matches += seq[i+pos];
+            }
+    
+            if (fswm_params::g_sampling) {
+                auto res = crc32_fast(&matches, NumBytes);
+                if (res < fswm_params::g_minHashLowerLimit) {
+                    bucketManager.insert_word(matches, seqID, i);
+                }
+            }
+            else {
+                bucketManager.insert_word(matches, seqID, i);
+            }
+        }
+    }
+
+    if (fswm_internal::seqIDsToNames.find(seqID) != fswm_internal::seqIDsToNames.end() or fswm_internal::namesToSeqIDs.find(header) != fswm_internal::namesToSeqIDs.end()) {
+        std::cerr << "Multiple sequences in the genomes seem to have the same name. Please fix." << std::endl;
+        exit(EXIT_FAILURE);
+    }
+    fswm_internal::seqIDsToNames[seqID] = header;
+    fswm_internal::namesToSeqIDs[header] = seqID;
+    fswm_internal::genomeIDsToNames[seqID] = header;
+    fswm_internal::namesToGenomeIDs[header] = seqID;
 }

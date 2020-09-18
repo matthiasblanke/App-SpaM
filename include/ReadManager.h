@@ -31,23 +31,20 @@
 #define FSWM_READMANAGER_H_
 
 #include <string>
-#include "Sequence.h"
+#include <vector>
+#include "GlobalParameters.h"
+#include "Seed.h"
+#include "BucketManager.h"
 
 class ReadManager {
 	private:
-		std::vector<Sequence> reads;
-    	uint32_t partitions;
-    	uint32_t currentPartition;
-    	uint32_t currentSeq;
     	uint32_t readCount;
+    	BucketManager bucketManagerReads;
 
 	public:
-		ReadManager(std::string readsfname);
-		void get_next_partition_BucketManager(std::vector<Seed> &seeds, BucketManager &bucketManagerReads);
+		ReadManager(std::string readsfname, std::vector<Seed> &seeds);
+		BucketManager get_BucketManager();
 
-		// Getter and Setter
-		std::vector<Sequence>& get_reads();
-		uint32_t get_partitions() const;
 		uint32_t get_readCount() const;
 };
 

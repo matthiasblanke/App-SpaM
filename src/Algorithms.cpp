@@ -19,94 +19,79 @@
 #include "Algorithms.h"
 #include "Scoring.h"
 #include "SubstitutionMatrix.h"
-#include "Match.h"
-#include "MatchManager.h"
+#include "Seed.h"
 
 /**
  * Calculate fswm distance between reads and genomes considering all spaced words.
  */
-bool Algorithms::fswm_complete(BucketManager &genomeBucketManager, BucketManager &readBucketManager, Scoring &fswm_distances) {
+bool Algorithms::fswm_complete(BucketManager &genomeBucketManager, 
+				BucketManager &readBucketManager, Scoring &fswm_distances) {
 	SubstitutionMatrix substMat;
 	std::ofstream histogramFile;
 	if (fswm_params::g_writeHistogram) { histogramFile.open(fswm_params::g_outfoldername + "histogram.txt", std::ios_base::app); }
 
 	// Loop through minimizers and compare each bucket on its own
-	for (auto const minimizer : genomeBucketManager.get_minimizers()) {
-		//Get buckets
-		Bucket bucketGenomes = genomeBucketManager.get_bucket(minimizer);
-		Bucket bucketReads = readBucketManager.get_bucket(minimizer);
-
-		// Loop through buckets and compare spaced words
-		std::vector<Word> wordsGenomes = bucketGenomes.get_words();
-		std::vector<Word> wordsReads = bucketReads.get_words();
-
-		// Get vector of word groups. First int is starting position, second int length of group
-		std::vector<std::pair<int,int>> wordGroupGenomes = bucketGenomes.get_wordGroups();
-		std::vector<std::pair<int,int>> wordGroupReads = bucketReads.get_wordGroups();
-
-		std::vector<std::pair<int,int>>::const_iterator wordGenome_it = wordGroupGenomes.cbegin();
-		std::vector<std::pair<int,int>>::const_iterator wordRead_it = wordGroupReads.cbegin();
-
-		if (fswm_params::g_verbose) {
-			std::cout << "\tBucket: " << bucketGenomes.get_minimizer() << std::endl;
-			std::cout << "\t\tBucket size genomes: " << bucketGenomes.get_bucketSize() << std::endl;
-			std::cout << "\t\tBucket size reads: " << bucketReads.get_bucketSize() << std::endl;
+	std::cout << genomeBucketManager.minimizersToBuckets.size() << std::endl;
+	for (std::pair<minimizer_t, std::vector<std::pair<seq_id_t, pos_t>>> minimizerToBucket : genomeBucketManager.minimizersToBuckets) {
+		
+		// If no spaced words for this minimizer in reads, continue
+		minimizer_t minimizer = minimizerToBucket.first;
+		if (readBucketManager.minimizersToBuckets.find(minimizer) == readBucketManager.minimizersToBuckets.end()) {
+			continue;
 		}
 
-		word_t dontCaresGenome;
-		word_t dontCaresRead;
+		// Loop through buckets and compare spaced words
+		std::vector<std::pair<seq_id_t, pos_t>> wordsGenomes = minimizerToBucket.second;
+		std::vector<std::pair<seq_id_t, pos_t>> wordsReads = readBucketManager.minimizersToBuckets[minimizer];
+
+		if (fswm_params::g_verbose) {
+			std::cout << "\tBucket: " << minimizer << std::endl;
+			std::cout << "\tEntries Genomes: " << wordsGenomes.size() << std::endl;
+			std::cout << "\tEntries Reads: " << wordsReads.size() << std::endl;
+		}
+
 		int count = 0;
 		// Loop through all word groups
-		while (wordRead_it != wordGroupReads.end() and wordGenome_it != wordGroupGenomes.end()) {
-			if (wordsGenomes[wordGenome_it->first] < wordsReads[wordRead_it->first]) {
-				wordGenome_it++;
-			}
-			else if (wordsGenomes[wordGenome_it->first] > wordsReads[wordRead_it->first]) {
-				wordRead_it++;
-			}
-			else {
-				// Loop through words with same spaced k-mer
-				for (int readCounter = 0; readCounter < wordRead_it->second; readCounter++) {
-					for (int genomeCounter = 0; genomeCounter < wordGenome_it->second; genomeCounter++) {
+		for (auto const &wordGenome : wordsGenomes) {
+			for (auto const &wordRead : wordsReads) {
 
-						// For each match calculate spaced word score
-						dontCaresGenome = wordsGenomes[wordGenome_it->first + genomeCounter].dontCares;
-						dontCaresRead = wordsReads[wordRead_it->first + readCounter].dontCares;
+				// For each match calculate spaced word score
+				for (auto &seed : fswm_internal::seeds) {
+					std::vector<int> dontCarePos = seed.get_dontCarePos();
+					std::cout << "Test" << std::endl;
+					int score = 0;
+					int mismatches = 0;
+					for (auto const &pos : dontCarePos) {
+						score += substMat.chiaromonte
+									[fswm_internal::referenceSequences[wordGenome.first][wordGenome.second + pos]]
+									[fswm_internal::querySequences[wordRead.first][wordRead.second + pos]];
+						mismatches += substMat.mismatch
+									[fswm_internal::referenceSequences[wordGenome.first][wordGenome.second + pos]]
+									[fswm_internal::querySequences[wordRead.first][wordRead.second + pos]];
+            		}
+            		std::cout << "Test" << std::endl;
 
-						int score = 0;
-						int mismatches = 0;
+					if (fswm_params::g_writeHistogram) {
+						int readSeqID = wordRead.first;
+						int genomeSeqID = wordGenome.first;
+						histogramFile << readSeqID << "\t" << genomeSeqID << "\t" << score << std::endl;
+					}
 
-						for (int i = 0; i < fswm_params::g_spaces; i++) {
-							score += substMat.chiaromonte[(dontCaresGenome & 0x03)][(dontCaresRead & 0x03)];
-							mismatches += substMat.mismatch[(dontCaresGenome & 0x03)][(dontCaresRead & 0x03)];
-							dontCaresRead = dontCaresRead >> 2;
-							dontCaresGenome = dontCaresGenome >> 2;
+					if (score > fswm_params::g_filteringThreshold) {
+						count++;
+						int readSeqID = wordRead.first;
+						int genomeSeqID = wordGenome.first;
+						// std::cout << readSeqID << "\t" << genomeSeqID << "\t" << wordsReads[wordRead_it->first + readCounter].seqPos << std::endl;
+						if (fswm_distances.scoringMap.find(readSeqID) == fswm_distances.scoringMap.end()) {
+							fswm_distances.scoringMap[readSeqID] = std::unordered_map<seq_id_t, scoring_t>();
+							fswm_distances.mismatchCount[readSeqID] = std::unordered_map<seq_id_t, count_t>();
+							fswm_distances.spacedWordMatchCount[readSeqID] = std::unordered_map<seq_id_t, count_t>();
 						}
-
-						if (fswm_params::g_writeHistogram) {
-							int readSeqID = wordsReads[wordRead_it->first + readCounter].seqID;
-							int genomeSeqID = wordsGenomes[wordGenome_it->first + genomeCounter].seqID;
-							histogramFile << readSeqID << "\t" << genomeSeqID << "\t" << score << std::endl;
-						}
-
-						if (score > fswm_params::g_filteringThreshold) {
-							count++;
-							int readSeqID = wordsReads[wordRead_it->first + readCounter].seqID;
-							int genomeSeqID = wordsGenomes[wordGenome_it->first + genomeCounter].seqID;
-							// std::cout << readSeqID << "\t" << genomeSeqID << "\t" << wordsReads[wordRead_it->first + readCounter].seqPos << std::endl;
-							if (fswm_distances.scoringMap.find(readSeqID) == fswm_distances.scoringMap.end()) {
-								fswm_distances.scoringMap[readSeqID] = std::unordered_map<seq_id_t, scoring_t>();
-								fswm_distances.mismatchCount[readSeqID] = std::unordered_map<seq_id_t, count_t>();
-								fswm_distances.spacedWordMatchCount[readSeqID] = std::unordered_map<seq_id_t, count_t>();
-							}
-							fswm_distances.scoringMap[readSeqID][genomeSeqID] += score;
-							fswm_distances.mismatchCount[readSeqID][genomeSeqID] += mismatches;
-							fswm_distances.spacedWordMatchCount[readSeqID][genomeSeqID] += 1;
-						}
+						fswm_distances.scoringMap[readSeqID][genomeSeqID] += score;
+						fswm_distances.mismatchCount[readSeqID][genomeSeqID] += mismatches;
+						fswm_distances.spacedWordMatchCount[readSeqID][genomeSeqID] += 1;
 					}
 				}
-				wordGenome_it++;
-				wordRead_it++;
 			}
 		}
 		std::cout << "\t\t# matches: " << count << std::endl;

@@ -19,6 +19,7 @@
 #include <unordered_map>
 #include <vector>
 #include <string>
+#include "Seed.h"
 
 // Spaced words and dont care positions are encoded in 64bit (2 bits per base).
 // Thus the number of match and don't care positions cannot exceed 32 characters.
@@ -110,10 +111,11 @@ namespace fswm_internal {
 	extern std::unordered_map<seq_id_t, seq_id_t> placementIDsToIDs;
 	extern std::unordered_map<seq_id_t, seq_id_t> IDsToPlacementIDs;
 
- 	extern std::unordered_map<word_t, seq_id_t> phyloDB;
+	extern std::unordered_map<seq_id_t, std::vector<char>> referenceSequences;
+	extern std::unordered_map<seq_id_t, std::vector<char>> querySequences;
 
-	// for each read we hold a map of inner nodes and how often they occur as phylo-k-mer
-	extern std::unordered_map<seq_id_t, std::unordered_map<seq_id_t, int>> lcasOfReads;
+	extern std::vector<Seed> seeds;
+
 	extern int g_numberGenomes;
 }
 

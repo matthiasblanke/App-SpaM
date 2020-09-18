@@ -17,18 +17,21 @@
 #define FSWM_BucketManager_H_
 
 #include <unordered_map>
-#include "Bucket.h"
+#include <vector>
 #include "Scoring.h"
 #include "GlobalParameters.h"
 
 class BucketManager {
 
 	private:
-		std::unordered_map<minimizer_t,std::unordered_map<bool, std::pair<seq_id_t, pos_t>>> minimizersToBuckets;
+		bool isQuery;
 
 	public:
+		std::unordered_map<minimizer_t,std::vector<std::pair<seq_id_t, pos_t>>> minimizersToBuckets;
+
 		// Constructors
 		BucketManager();
+		BucketManager(bool isQuery);
 
 		// Functions
 		void insert_word(minimizer_t minimizer, seq_id_t seq_id, pos_t seq_pos);
@@ -37,9 +40,9 @@ class BucketManager {
 inline void BucketManager::insert_word(minimizer_t minimizer, seq_id_t seq_id, pos_t seq_pos) {
 
 	if (minimizersToBuckets.find(minimizer) == minimizersToBuckets.end()){
-		minimizersToBuckets[minimizer] = std::unordered_map<bool, std::pair<seq_id_t, pos_t>>();
+		minimizersToBuckets[minimizer] = std::vector<std::pair<seq_id_t, pos_t>>();
 	}
-	minimizersToBuckets[minimizer][isQuery] = std::pair<seq_id_t, pos_t>(seq_id, seq_pos);
+	minimizersToBuckets[minimizer].push_back(std::pair<seq_id_t, pos_t>(seq_id, seq_pos));
 }
 
 #endif
