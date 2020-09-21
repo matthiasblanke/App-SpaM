@@ -23,7 +23,7 @@ ReadManager::ReadManager(std::string readsfname, std::vector<Seed> &seeds) {
 
 	bucketManagerReads = BucketManager(true);
 
-	SeqIO::read_sequences(readsfname, false, bucketManagerReads);
+	SeqIO::read_sequences(readsfname, true, bucketManagerReads);
 }
 
 /**

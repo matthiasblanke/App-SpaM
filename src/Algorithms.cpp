@@ -50,7 +50,6 @@ bool Algorithms::fswm_complete(BucketManager &genomeBucketManager,
 			std::cout << "\tEntries Reads: " << wordsReads.size() << std::endl;
 		}
 
-		int count = 0;
 		// Loop through all word groups
 		for (auto const &wordGenome : wordsGenomes) {
 			for (auto const &wordRead : wordsReads) {
@@ -58,18 +57,21 @@ bool Algorithms::fswm_complete(BucketManager &genomeBucketManager,
 				// For each match calculate spaced word score
 				for (auto &seed : fswm_internal::seeds) {
 					std::vector<int> dontCarePos = seed.get_dontCarePos();
-					std::cout << "Test" << std::endl;
+					//std::cout << "Test" << std::endl;
 					int score = 0;
 					int mismatches = 0;
 					for (auto const &pos : dontCarePos) {
+						//std::cout << "RefSeq: " << wordGenome.first << " at pos: " << wordGenome.second + pos << std::endl;
+						//std::cout << int(fswm_internal::referenceSequences[wordGenome.first][wordGenome.second + pos]) << std::endl;
+						//std::cout << int(fswm_internal::querySequences[wordRead.first][wordRead.second + pos]) << std::endl;
 						score += substMat.chiaromonte
-									[fswm_internal::referenceSequences[wordGenome.first][wordGenome.second + pos]]
-									[fswm_internal::querySequences[wordRead.first][wordRead.second + pos]];
+									[int(fswm_internal::referenceSequences[wordGenome.first][wordGenome.second + pos])]
+									[int(fswm_internal::querySequences[wordRead.first][wordRead.second + pos])];
 						mismatches += substMat.mismatch
-									[fswm_internal::referenceSequences[wordGenome.first][wordGenome.second + pos]]
-									[fswm_internal::querySequences[wordRead.first][wordRead.second + pos]];
+									[int(fswm_internal::referenceSequences[wordGenome.first][wordGenome.second + pos])]
+									[int(fswm_internal::querySequences[wordRead.first][wordRead.second + pos])];
             		}
-            		std::cout << "Test" << std::endl;
+            		//std::cout << "Test" << std::endl;
 
 					if (fswm_params::g_writeHistogram) {
 						int readSeqID = wordRead.first;
@@ -78,7 +80,6 @@ bool Algorithms::fswm_complete(BucketManager &genomeBucketManager,
 					}
 
 					if (score > fswm_params::g_filteringThreshold) {
-						count++;
 						int readSeqID = wordRead.first;
 						int genomeSeqID = wordGenome.first;
 						// std::cout << readSeqID << "\t" << genomeSeqID << "\t" << wordsReads[wordRead_it->first + readCounter].seqPos << std::endl;
@@ -94,7 +95,6 @@ bool Algorithms::fswm_complete(BucketManager &genomeBucketManager,
 				}
 			}
 		}
-		std::cout << "\t\t# matches: " << count << std::endl;
 	}
 
 	if (fswm_params::g_writeHistogram) { histogramFile.close(); }
