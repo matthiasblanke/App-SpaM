@@ -18,6 +18,7 @@
 
 #include <unordered_map>
 #include <vector>
+#include <tuple>
 #include "Scoring.h"
 #include "GlobalParameters.h"
 
@@ -27,22 +28,22 @@ class BucketManager {
 		bool isQuery;
 
 	public:
-		std::unordered_map<minimizer_t,std::vector<std::pair<seq_id_t, pos_t>>> minimizersToBuckets;
+		std::unordered_map<minimizer_t,std::vector<std::pair<word_t, seq_id_t>>> minimizersToBuckets;
 
 		// Constructors
 		BucketManager();
 		BucketManager(bool isQuery);
 
 		// Functions
-		void insert_word(minimizer_t minimizer, seq_id_t seq_id, pos_t seq_pos);
+		void insert_word(word_t minimizer, word_t dontCare, seq_id_t seq_id);
 };
 
-inline void BucketManager::insert_word(minimizer_t minimizer, seq_id_t seq_id, pos_t seq_pos) {
+inline void BucketManager::insert_word(word_t minimizer, word_t dontCare, seq_id_t seq_id) {
 
 	if (minimizersToBuckets.find(minimizer) == minimizersToBuckets.end()){
-		minimizersToBuckets[minimizer] = std::vector<std::pair<seq_id_t, pos_t>>();
+		minimizersToBuckets[minimizer] = std::vector<std::pair<word_t, seq_id_t>>();
 	}
-	minimizersToBuckets[minimizer].push_back(std::pair<seq_id_t, pos_t>(seq_id, seq_pos));
+	minimizersToBuckets[minimizer].push_back(std::pair<word_t, seq_id_t>(dontCare, seq_id));
 }
 
 #endif

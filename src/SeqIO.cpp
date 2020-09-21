@@ -73,36 +73,44 @@ void SeqIO::parse_sequence(std::string header, std::string seqLine, seq_id_t seq
         }
     }
 
+    /*
     if (isQuery) {
         fswm_internal::querySequences[seqID] = seq;
     }
     else {
         fswm_internal::referenceSequences[seqID] = seq;
-    }
+    }*/
     
     const size_t NumBytes = 8;
 
     for (auto &seed : fswm_internal::seeds) {
         std::vector<int> matchPos = seed.get_matchPos();
+        std::vector<int> dontCarePos = seed.get_dontCarePos();
 
         // Go through all spaced words in sequence and save to bucket
         uint32_t go_until = std::max(int(seq.size() - fswm_params::g_weight - fswm_params::g_spaces + 1), 0);
         for (uint32_t i = 0; i < go_until; i++) {
             // Create spaced word at position i and give word to BucketManager for further processing
             word_t matches = 0;
+            word_t dontCares = 0;
             for (auto const &pos : matchPos) {
                 matches = matches << 2;
                 matches += seq[i+pos];
+            }
+
+            for (auto const &pos : dontCarePos) {
+                dontCares = dontCares << 2;
+                dontCares += seq[i+pos];
             }
     
             if (fswm_params::g_sampling) {
                 auto res = crc32_fast(&matches, NumBytes);
                 if (res < fswm_params::g_minHashLowerLimit) {
-                    bucketManager.insert_word(matches, seqID, i);
+                    bucketManager.insert_word(matches, dontCares, seqID);
                 }
             }
             else {
-                bucketManager.insert_word(matches, seqID, i);
+                bucketManager.insert_word(matches, dontCares, seqID);
             }
         }
     }
