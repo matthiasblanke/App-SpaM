@@ -44,14 +44,8 @@ namespace fswm_params {
 	// Number of don't care positions of spaced word
 	extern uint16_t g_spaces;
 
-	// Only relevant for phylo-k-mers: Number of leaves allowed, that break monophyly
-	extern int g_allowance;
-
 	// Defines methods with which reads are assigned or placed in tree
 	extern std::string g_assignmentMode;
-
-	// Placement mode for phylo-k-mers
-	extern std::string phylo_placement_mode;
 
 	// Number of threads used
 	extern uint16_t g_threads;
@@ -109,11 +103,6 @@ namespace fswm_internal {
 
 	extern std::unordered_map<seq_id_t, seq_id_t> placementIDsToIDs;
 	extern std::unordered_map<seq_id_t, seq_id_t> IDsToPlacementIDs;
-
- 	extern std::unordered_map<word_t, seq_id_t> phyloDB;
-
-	// for each read we hold a map of inner nodes and how often they occur as phylo-k-mer
-	extern std::unordered_map<seq_id_t, std::unordered_map<seq_id_t, int>> lcasOfReads;
 	extern int g_numberGenomes;
 }
 

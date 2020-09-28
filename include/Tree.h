@@ -71,7 +71,6 @@ class Tree {
 		void fill_internals_avg_score();
 		void fill_internals_max_count();
 		void fill_internals_sum_count();
-		void fill_internals_sum_count_phylokmers();
 		void fill_internals_weighted_min_score();
 
 		void fill_leaves_below();
@@ -89,18 +88,12 @@ class Tree {
 		Node* find_node(seq_id_t seqID);
 		bool is_child_of(seq_id_t child_id, seq_id_t parent_id);
 
-		// Phylo kmer methods
-		void build_phylokmer_db(BucketManager &bucketManager);
-		void build_kmercount_db(BucketManager &bucketManager);
-		bool test_monophyly(std::unordered_set<seq_id_t> &seqID_set);
-
 		// JPlace writing
 		void write_jplace_data_beginning();
 		void write_jplace_data_end();
 		void write_jplace_placement_data(std::vector<std::pair<seq_id_t, int>> readAssignment);
 		void write_multiple_jplace(std::vector<std::pair<seq_id_t, double>> placements, bool first, seq_id_t seqID);
 		std::string get_newick_str(bool write_edge_nums);
-		void write_phyloDB_toFile();
 
 		void fix_internalNodeNumbers();
 };

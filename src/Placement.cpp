@@ -59,13 +59,6 @@ void Placement::phylogenetic_placement() {
 	// Read genomes, create spaced words and organize BucketManagers
 	GenomeManager genomeManager(fswm_params::g_genomesfname, seeds);
 
-	// Create phylokmers if necessary
-	if (fswm_params::g_assignmentMode == "PHYLOKMERS") {
-		BucketManager bucketManagerGenomes = genomeManager.get_BucketManager();
-		Tree tree(fswm_params::g_reftreefname);
-		tree.build_phylokmer_db(bucketManagerGenomes);
-	}
-
 	// Create empty output files
 	Placement::create_output_files();
 
@@ -80,30 +73,19 @@ void Placement::phylogenetic_placement() {
 
 		Scoring fswm_distances = Scoring();
 
-		if (fswm_params::g_assignmentMode == "PHYLOKMERS") {
-			Algorithms::match_reads_against_phyloDB(bucketManagerReads);
-		}
-		else {
-			BucketManager bucketManagerGenomes = genomeManager.get_BucketManager();
-			Algorithms::fswm_complete(bucketManagerGenomes, bucketManagerReads, fswm_distances);
-		}
+		BucketManager bucketManagerGenomes = genomeManager.get_BucketManager();
+		Algorithms::fswm_complete(bucketManagerGenomes, bucketManagerReads, fswm_distances);
 
 		#pragma omp critical
 		{
-			if (fswm_params::g_assignmentMode == "PHYLOKMERS") {
-				fswm_distances.phylo_kmer_placement();
-				// tree.write_phyloDB_toFile();
-			}
-			else {
-				std::cout << "-> Calculate distances." << std::endl;
-				fswm_distances.calculate_fswm_distances();
-				std::cout << "-> Placing reads in reference tree." << std::endl;
-				fswm_distances.phylogenetic_placement();
+			std::cout << "-> Calculate distances." << std::endl;
+			fswm_distances.calculate_fswm_distances();
+			std::cout << "-> Placing reads in reference tree." << std::endl;
+			fswm_distances.phylogenetic_placement();
 
-				if (fswm_params::g_writeScoring or fswm_params::g_assignmentMode == "APPLES") {
-					fswm_distances.write_scoring_to_file();
-					fswm_distances.write_scoring_to_file_as_table();
-				}
+			if (fswm_params::g_writeScoring or fswm_params::g_assignmentMode == "APPLES") {
+				fswm_distances.write_scoring_to_file();
+				fswm_distances.write_scoring_to_file_as_table();
 			}
 		}
 	}

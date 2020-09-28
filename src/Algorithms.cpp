@@ -23,59 +23,6 @@
 #include "MatchManager.h"
 
 /**
- * Creates a scoring scheme containing the k-mer counts.
- */
-bool Algorithms::count_kmers(BucketManager &genomeBucketManager, BucketManager &readBucketManager, Scoring &fswm_distances) {
-	// Loop through minimizers and compare each bucket on its own
-	for (auto const minimizer : genomeBucketManager.get_minimizers()) {
-		//Get buckets
-		Bucket bucketGenomes = genomeBucketManager.get_bucket(minimizer);
-		Bucket bucketReads = readBucketManager.get_bucket(minimizer);
-
-		// Loop through buckets and compare spaced words
-		std::vector<Word> wordsGenomes = bucketGenomes.get_words();
-		std::vector<Word> wordsReads = bucketReads.get_words();
-
-		// Get vector of word groups. First int is starting position, second int length of group
-		std::vector<std::pair<int,int>> wordGroupGenomes = bucketGenomes.get_wordGroups();
-		std::vector<std::pair<int,int>> wordGroupReads = bucketReads.get_wordGroups();
-
-		std::vector<std::pair<int,int>>::const_iterator wordGenome_it = wordGroupGenomes.cbegin();
-		std::vector<std::pair<int,int>>::const_iterator wordRead_it = wordGroupReads.cbegin();
-
-		// Loop through all word groups
-		while (wordRead_it != wordGroupReads.end() and wordGenome_it != wordGroupGenomes.end()) {
-			if (wordsGenomes[wordGenome_it->first] < wordsReads[wordRead_it->first]) {
-				wordGenome_it++;
-			}
-			else if (wordsGenomes[wordGenome_it->first] > wordsReads[wordRead_it->first]) {
-				wordRead_it++;
-			}
-			else {	// Found identical word group
-				// Loop through words with same spaced k-mer
-				for (int readCounter = 0; readCounter < wordRead_it->second; readCounter++) {
-					for (int genomeCounter = 0; genomeCounter < wordGenome_it->second; genomeCounter++) {
-
-						int readSeqID = wordsReads[wordRead_it->first + readCounter].seqID;
-						int genomeSeqID = wordsGenomes[wordGenome_it->first + genomeCounter].seqID;
-						if (fswm_distances.kmerCountsMap.find(readSeqID) == fswm_distances.kmerCountsMap.end()) {
-							fswm_distances.kmerCountsMap[readSeqID] = seqIDtoCount_t();
-							fswm_distances.spacedWordMatchCount[readSeqID] = seqIDtoCount_t();
-						}
-						fswm_distances.kmerCountsMap[readSeqID][genomeSeqID] += 1;
-						fswm_distances.spacedWordMatchCount[readSeqID][genomeSeqID] += 1;
-					}
-				}
-
-				wordGenome_it++;
-				wordRead_it++;
-			}
-		}
-	}
-	return true;
-}
-
-/**
  * Calculate fswm distance between reads and genomes considering all spaced words.
  */
 bool Algorithms::fswm_complete(BucketManager &genomeBucketManager, BucketManager &readBucketManager, Scoring &fswm_distances) {
@@ -176,54 +123,4 @@ bool Algorithms::fswm_complete(BucketManager &genomeBucketManager, BucketManager
 	if (fswm_params::g_writeHistogram) { histogramFile.close(); }
 
 	return true;
-}
-
-/**
- * Check which and how many reads have phylo-kmers matching the referenceDB.
- */
-bool Algorithms::match_reads_against_phyloDB(BucketManager &readBucketManager) {
-	std::ofstream* outputKmerStream = new std::ofstream(fswm_params::g_outfoldername + "phylo_kmers_reads.txt");
-	*outputKmerStream << "k-mer\tseqID\tseqPos\ttreePosRef\ttreePosRefName" << std::endl;
-
-	for (auto const minimizer : readBucketManager.get_minimizers()) {
-		//Get current bucket
-		Bucket bucketReads = readBucketManager.get_bucket(minimizer);
-
-		// Get words for current bucket
-		std::vector<Word> wordsReads = bucketReads.get_words();
-
-		if (fswm_params::g_verbose) { std::cout << "\t\t" << bucketReads.get_minimizer() << " Bucket size reads: " << bucketReads.get_bucketSize() << std::endl; }
-
-		// Loop through all words in bucket
-		for (std::vector<Word>::const_iterator wordRead_it = wordsReads.cbegin(); wordRead_it != wordsReads.end(); wordRead_it++) {
-			if (fswm_internal::phyloDB.count(wordRead_it->matches)) {
-				seq_id_t lca = fswm_internal::phyloDB[wordRead_it->matches];
-				*outputKmerStream << wordRead_it->matches << "\t" << wordRead_it->seqID << "\t" << wordRead_it->seqPos << "\t"
-				<< lca << "\t"
-				<< fswm_internal::seqIDsToNames[lca]<< std::endl;
-
-				// If the seqID is not already in lcasOfReads, create a new map for it
-				if (fswm_internal::lcasOfReads.find(wordRead_it->seqID) == fswm_internal::lcasOfReads.end()) {
-					fswm_internal::lcasOfReads[wordRead_it->seqID] = std::unordered_map<seq_id_t, int>();
-				}
-				// increase count of lca for this read in lcasOfReads
-				fswm_internal::lcasOfReads[wordRead_it->seqID][lca]++;
-			}
-		}
-	}
-
-	outputKmerStream->close();
-
-	/** Write lcasOfReads to file. */
-		std::ofstream* lcasOfReads = new std::ofstream(fswm_params::g_outfoldername + "lcasOfReads.txt");
-		*lcasOfReads << "seqID \t LCAs \t Count" << std::endl;
-
-
-		for (auto const &entry : fswm_internal::lcasOfReads) {
-			for (auto const &lcasCountMap : entry.second) {
-				*lcasOfReads << entry.first << "\t" << fswm_internal::seqIDsToNames[lcasCountMap.first] << "\t" << lcasCountMap.second << "\n";
-			}
-		}
-		*lcasOfReads << std::endl;
-		lcasOfReads->close();
 }

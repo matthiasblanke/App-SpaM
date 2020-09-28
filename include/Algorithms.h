@@ -22,14 +22,8 @@
 
 class Algorithms {		
 	public:
-		// Count spaced k-mers between genomes and reads
-		static bool count_kmers(BucketManager &genomeBucketManager, BucketManager &readBucketManager, Scoring &fswm_distances);
-
 		// Complete checks the quadratic number of matches between corresponding buckets
 		static bool fswm_complete(BucketManager &genomeBucketManager, BucketManager &readBucketManager, Scoring &fswm_distances);
-
-		// Calculates distances between all spaced words within one bucket
-		static bool match_reads_against_phyloDB(BucketManager &readBucketManager);
 };
 
 #endif

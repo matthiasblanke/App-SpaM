@@ -40,8 +40,7 @@ std::string fswm_params::g_paramfname = "";
 uint16_t fswm_params::g_weight = 12;
 uint16_t fswm_params::g_spaces = 32;
 std::string fswm_params::g_assignmentMode = "LCACOUNT";
-std::string fswm_params::phylo_placement_mode = "ALLBEST";
-bool fswm_params::g_verbose = true;
+bool fswm_params::g_verbose = false;
 int fswm_params::g_filteringThreshold = GlobalParameters::calculate_filteringThreshold();
 int fswm_params::g_filteringThresholdMultiplicator = 0;
 bool fswm_params::g_sampling = false;
@@ -52,7 +51,6 @@ uint16_t fswm_params::g_threads = 1;
 uint32_t fswm_params::g_readBlockSize = 100000;
 bool fswm_params::g_writeHistogram = false;
 bool fswm_params::g_writeScoring = false;
-int fswm_params::g_allowance = 0;
 double fswm_params::default_distance_new_leaves = 0.001;
 int fswm_params::g_numPatterns = 10;
 double fswm_params::g_defaultDistance = 10;
@@ -71,10 +69,6 @@ std::unordered_map<std::string, seq_id_t> fswm_internal::namesToReadIDs = std::u
 std::unordered_map<seq_id_t, seq_id_t> fswm_internal::IDsToPlacementIDs = std::unordered_map<seq_id_t, seq_id_t>();
 std::unordered_map<seq_id_t, seq_id_t> fswm_internal::placementIDsToIDs = std::unordered_map<seq_id_t, seq_id_t>();
 
-std::unordered_map<word_t, seq_id_t> fswm_internal::phyloDB = std::unordered_map<word_t, seq_id_t>();
-
-std::unordered_map<seq_id_t, std::unordered_map<seq_id_t, int>> fswm_internal::lcasOfReads = std::unordered_map<seq_id_t, std::unordered_map<seq_id_t, int>>();
-
 int fswm_internal::g_numberGenomes = 0;
 
 bool GlobalParameters::save_parameters() {
@@ -86,8 +80,7 @@ bool GlobalParameters::save_parameters() {
 	foutstream << "\tout_jplace : " << fswm_params::g_outjplacename << "," << std::endl;
 	foutstream << "\tweight : " << fswm_params::g_weight << "," << std::endl;
 	foutstream << "\tspaces : " << fswm_params::g_spaces << "," << std::endl;
-	foutstream << "\tallowance :" << fswm_params::g_allowance << "," << std::endl;
-	foutstream << "\tassignment_mode : " << fswm_params::g_assignmentMode << "," << std::endl;
+	foutstream << "\tmode : " << fswm_params::g_assignmentMode << "," << std::endl;
 	foutstream << "\tread_block_size : " << fswm_params::g_readBlockSize << "," << std::endl;
 	foutstream << "  }" << std::endl << "}" << std::endl;
 	foutstream.close();
@@ -121,10 +114,7 @@ bool GlobalParameters::load_parameters(std::string filename = "") {
 				fswm_params::g_spaces = std::stoi(value);
 				fswm_params::g_filteringThreshold = calculate_filteringThreshold();
 			}
-			if (key.find("allowance") != std::string::npos) {
-				fswm_params::g_allowance = std::stoi(value); 					//stoi: string to int
-			}
-			if (key.find("assignment_mode") != std::string::npos) {
+			if (key.find("mode") != std::string::npos) {
 				fswm_params::g_assignmentMode = value;
 			}
 			if (key.find("threads") != std::string::npos) {
@@ -181,7 +171,7 @@ bool GlobalParameters::load_parameters(std::string filename = "") {
 /** Parse option parameters from parameter file or command line. */
 bool GlobalParameters::parse_parameters(int argc, char *argv[]) {
 	int option_param;
-	std::string possible_params = "l:s:t:q:o:k:d:hm:g:a:b:vi";
+	std::string possible_params = "l:s:t:q:o:w:d:hm:b:v";
 	bool usingParameterfile = false;
 
     int index = -1;
@@ -192,12 +182,11 @@ bool GlobalParameters::parse_parameters(int argc, char *argv[]) {
         { "tree", required_argument,			nullptr, 't' },
         { "query", required_argument,  			nullptr, 'q' },
         { "out_jplace", required_argument, 		nullptr, 'o' },
-        { "weight", required_argument, 			nullptr, 'k' },
+        { "weight", required_argument, 			nullptr, 'w' },
         { "dontCare", required_argument,       	nullptr, 'd' },
         { "threads", required_argument, 		nullptr, 1   },
         { "help", no_argument, 					nullptr, 'h' },
-        { "assignment_mode", required_argument, nullptr, 'g' },
-		{ "allowance", required_argument,		nullptr, 'a' },
+        { "mode", required_argument, 			nullptr, 'm' },
         { "read_block_size", required_argument, nullptr, 'b' },
         { "verbose", no_argument, 				nullptr, 'v' },
         { "histogram", no_argument, 			nullptr, 2   },
@@ -246,7 +235,7 @@ bool GlobalParameters::parse_parameters(int argc, char *argv[]) {
 			case 't':
 				fswm_params::g_reftreefname = optarg;
 				break;
-			case 'k':
+			case 'w':
 				fswm_params::g_weight = atoi(optarg);
 				break;
 			case 'd':
@@ -272,7 +261,7 @@ bool GlobalParameters::parse_parameters(int argc, char *argv[]) {
 			case 3:
 				fswm_params::g_writeScoring = true;
 				break;
-			case 'g':
+			case 'm':
 				fswm_params::g_assignmentMode = optarg;
 				break;
 			case 4:
@@ -281,9 +270,6 @@ bool GlobalParameters::parse_parameters(int argc, char *argv[]) {
 			case 5:
 				fswm_params::g_filteringThresholdMultiplicator = atoi(optarg);
 				calculate_filteringThreshold();
-				break;
-			case 'a':
-				fswm_params::g_allowance = atoi(optarg);				//atoi: character string to int
 				break;
 			case '?':
 				print_help();
@@ -305,30 +291,8 @@ bool GlobalParameters::check_parameters() {
 		print_to_console();
 		exit (EXIT_FAILURE);
 	}
-	/*if (fswm_params::g_assignmentMode != "BEST" and fswm_params::g_assignmentMode != "LCA" and fswm_params::g_assignmentMode != "RANDOM" and fswm_params::g_assignmentMode != "PHYLOKMERS" and fswm_params::g_assignmentMode != "APPLES") {
-		std::cerr << "AssignmentMode must be \"BEST\" or \"LCA\" or \"RANDOM\" or \"PHYLOKMERS\" or \"APPLES\"."<< std::endl;
-		print_to_console();
-		exit (EXIT_FAILURE);
-	}*/
-	if (fswm_params::g_assignmentMode.rfind("PHYLOKMERS", 0) == 0) {
-		std::stringstream test;
-		test.str (fswm_params::g_assignmentMode);
-		std::string segment;
-		std::vector<std::string> seglist;
-
-		while(std::getline(test, segment, 'X')) {
-   			seglist.push_back(segment);
-		}
-		if (seglist.size() != 2) {
-			std::cerr << "PHYLOKMERS placement must be followed by mode." << std::endl;
-			print_to_console();
-			exit (EXIT_FAILURE);
-		}
-		fswm_params::g_assignmentMode = seglist[0];
-		fswm_params::phylo_placement_mode = seglist[1];
-	}
-	if (fswm_params::g_allowance < 0 ) {
-		std::cerr << "Allowance must be an integer >= 0." << std::endl;
+	if (fswm_params::g_assignmentMode != "SPAMCOUNT" and fswm_params::g_assignmentMode != "MINDIST" and fswm_params::g_assignmentMode != "LCACOUNT" and fswm_params::g_assignmentMode != "LCADIST" and fswm_params::g_assignmentMode != "APPLES") {
+		std::cerr << "AssignmentMode must be \"SPAMCOUNT\" or \"MINDIST\" or \"LCACOUNT\" or \"LCADIST\" or \"APPLES\"."<< std::endl;
 		print_to_console();
 		exit (EXIT_FAILURE);
 	}
@@ -372,7 +336,6 @@ bool GlobalParameters::print_to_console() {
 	std::cout << "Parameters:" << std::endl;
 	std::cout << "\tweight  : " << fswm_params::g_weight << std::endl;
 	std::cout << "\tspaces  : " << fswm_params::g_spaces << std::endl;
-	std::cout << "\tallowance : " << fswm_params::g_allowance << std::endl;
 	std::cout << "\tthreads : " << fswm_params::g_threads << std::endl;
 	std::cout << "\tassignment : " << fswm_params::g_assignmentMode << std::endl;
 	std::cout << "\tread_block_size  : " << fswm_params::g_readBlockSize << std::endl;
@@ -427,29 +390,24 @@ Execute appspam with:
 ------------------------------------------------------------
 
 A typical call might look like:
-	./appspam -l appspam_parameters.txt
 	./appspam -h
 	./appspam -s references.fasta -q query.fasta -t tree.nwk
-	./appspam -l fswm_parameters.txt -d 10 -w 8
+	./appspam -s references.fasta -q query.fasta -t tree.nwk -d 10 -w 8
 
 The following parameters are necessary:
 	-s 	Reference sequences.
-		Full path of fasta file with references.
-		(Normally marker genes or fully assembled genomes,
-		i.e. every sequence is corresponding to one reference.
-		If unassembled references are used, the corresponding flag
-		and delimiter parameters need to be used.)
+		Full path to fasta file with references.
 	-q 	Query sequences.
-		Full path of fasta file with query sequences.
+		Full path to fasta file with query sequences.
 	-t	Reference tree.
 		File of reference tree in newick format.
 		(Rooted, bifurcating tree in newick format.
-		All leaves must have identical names to reference genomes.)
+		All leaves must have identical names to reference sequences.)
 
 The following parameters are optional.
 	--outputFolder
 	-o 	Output folder				./results/
-		Path to folder for all output files
+		Path to folder for all output files.
 
 	--weight
 	-w	Weight of pattern.			12
@@ -457,19 +415,17 @@ The following parameters are optional.
 		automatically.
 
 	--dontCare
-	-d	Don't care positions. 		16
+	-d	Don't care positions. 		32
 		Number of don't care positions in pattern.
-		Match positions (-k) plus don't care positions (-d) equal the
+		Match positions (-w) plus don't care positions (-d) equal the
 		overall pattern length.
 
 	--threads
 	 	Number of threads.			1
-		The calculations are not parallelized at the moment.
 
 	--mode
-	-m	Matching-mode 					0
-		Switch between different modes of fswm, i.e. which spaced words are
-		compared to each other. Possible values:
+	-m	Placement-mode 				LCACOUNT
+		Switch between different modes of APP-SpaM:
 		all:		 	"Comare all spaced words against all others"
 		first:	 		"Compare only each spaced word only against a random other spaced word match"
 		best:		    "Compare each spaced word only against highest scoring match"

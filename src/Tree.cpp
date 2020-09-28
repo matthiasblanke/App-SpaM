@@ -292,27 +292,6 @@ seq_id_t Tree::get_node_root_descent_best_count(countMap_t::iterator &it) {
 }
 
 /**
- * Descent tree from root to leaves for phylo-k-mers.
- */
-seq_id_t Tree::get_node_root_descent_best_path() {
-	Node *currentNode_pt = root;
-	while (currentNode_pt->children.size() == 2) {
-		int score1 = currentNode_pt->children[0]->weight;
-		int score2 = currentNode_pt->children[1]->weight;
-		if (score1 == 0 and score2 == 0) {
-			return currentNode_pt->ID;
-		}
-		else if (score1 < score2) {
-			currentNode_pt = currentNode_pt->children[1];
-		}
-		else {
-			currentNode_pt = currentNode_pt->children[0];
-		}
-	}
-	return currentNode_pt->ID;
-}
-
-/**
  * Descent tree from root to leaves. Return node, when difference in scores
  * between both subtrees is small.
  */
@@ -929,25 +908,6 @@ void Tree::fill_internals_sum_count() {
 	}
 }
 
-/** Fill all internal node weights with sum of all children. */
-void Tree::fill_internals_sum_count_phylokmers() {
-	for (auto const &node : dfs_iterator_recurse(root)) {
-		if (node->children.size() == 0) {
-			node->weight = 0;
-		}
-		if (node->children.size() > 0) {
-			if (node->weight < 0) {
-				node->weight = 0;
-			}
-			count_t sum_weight = node->weight;
-			for (auto const child : node->children) {
-				sum_weight += child->weight;
-			}
-			node->weight = sum_weight;
-		}
-	}
-}
-
 /** Fill nodes below fields in all inner nodes. */
 void Tree::fill_leaves_below() {
 	for (auto const node : dfs_iterator) {
@@ -962,108 +922,6 @@ void Tree::fill_leaves_below() {
 			node->leaves_below = leaves_below;
 		}
 	}
-}
-
-/** Find phylo-k-mers in references and create phyloDB */
-void Tree::build_phylokmer_db(BucketManager &bucketManager) {
-	// Write for every phylokmer in which genomes it occurs
-	// std::ofstream* outputKmerStreamOccurrence = new std::ofstream(fswm_params::g_outfoldername + "phylo_kmers_occurrence.txt");
-	// *outputKmerStreamOccurrence << "matches \t genomeSeqID \t genomeSeqPos" << std::endl;
-
-	// Loop through minimizers and compare each bucket on its own
-	for (auto const &minimizer : bucketManager.get_minimizers()) {
-		//Get buckets
-		Bucket bucketGenomes = bucketManager.get_bucket(minimizer);
-
-		// Get words for current bucket
-		std::vector<Word> wordsGenomes = bucketGenomes.get_words();
-
-		// Get vector of word groups. First int is starting position, second int length of group
-		std::vector<std::pair<int,int>> wordGroupGenomes = bucketGenomes.get_wordGroups();
-
-		// Get Iterator through word groups
-		std::vector<std::pair<int,int>>::const_iterator wordGenome_it = wordGroupGenomes.cbegin();
-
-		while (wordGenome_it != wordGroupGenomes.end()) {		// Loop through all word groups
-			std::unordered_set<seq_id_t> seqIDs;				// Create empty list that will hold all genomeIDs that contain the kmer
-			for (int genomeCounter = 0; genomeCounter < wordGenome_it->second; genomeCounter++) {		// Loop through words with same spaced k-mer
-				seqIDs.insert(wordsGenomes[wordGenome_it->first + genomeCounter].seqID);  // and insert seqIDs of all sequences into set
-			}
-
-			Node* lca = find_LCA(seqIDs);
-			if (test_monophyly(seqIDs) and (lca != root) and seqIDs.size() > 1) {	// Test if sequences contained in list are monophyletic
-
-				// If new phylo k mer create new dictionary and insert position
-				word_t spacedKmer = wordsGenomes[wordGenome_it->first].matches;
-				// Insert position of phylo-k-mer into vector
-				fswm_internal::phyloDB[spacedKmer] = lca->ID;
-
-				for (int genomeCounter = 0; genomeCounter < wordGenome_it->second; genomeCounter++) {		// Loop through words with same spaced k-mer
-					int genomeSeqID = wordsGenomes[wordGenome_it->first + genomeCounter].seqID;
-					int genomeSeqPos = wordsGenomes[wordGenome_it->first + genomeCounter].seqPos;
-					int matches = wordsGenomes[wordGenome_it->first + genomeCounter].matches;
-					// *outputKmerStreamOccurrence << matches << '\t' << genomeSeqID << '\t' << genomeSeqPos << std::endl;
-				}
-			}
-			wordGenome_it++;
-		}
-	}
-
-	// outputKmerStreamOccurrence->close();
-}
-
-/** Find phylo-k-mers in references and create phyloDB */
-void Tree::build_kmercount_db(BucketManager &bucketManager) {
-	// Loop through minimizers and compare each bucket on its own
-	for (auto const &minimizer : bucketManager.get_minimizers()) {
-
-		//Get buckets
-		Bucket bucketGenomes = bucketManager.get_bucket(minimizer);
-
-		// Get words for current bucket
-		std::vector<Word> wordsGenomes = bucketGenomes.get_words();
-
-		// Get vector of word groups. First int is starting position, second int length of group
-		std::vector<std::pair<int,int>> wordGroupGenomes = bucketGenomes.get_wordGroups();
-		// Loop through all word groups
-		for (std::vector<std::pair<int,int>>::const_iterator wordGenome_it = wordGroupGenomes.cbegin(); wordGenome_it != wordGroupGenomes.end(); wordGenome_it++) {
-			std::unordered_set<seq_id_t> seqIDs;				// Create empty list that will hold all genomeIDs that contain the kmer
-			for (int genomeCounter = 0; genomeCounter < wordGenome_it->second; genomeCounter++) {		// Loop through words with same spaced k-mer
-				seqIDs.insert(wordsGenomes[wordGenome_it->first + genomeCounter].seqID);  // and insert seqIDs of all sequences into set
-			}
-
-			fswm_internal::phyloDB[wordsGenomes[wordGenome_it->first].matches] = seqIDs.size();
-		}
-	}
-}
-
-/** Write phyloDB to file. */
-void Tree::write_phyloDB_toFile() {
-	std::ofstream* phyloDB = new std::ofstream(fswm_params::g_outfoldername + "phyloDB.txt");
-	*phyloDB << "kmer_key \t LCA " << std::endl;
-
-	for (auto const &entry : fswm_internal::phyloDB) {
-		*phyloDB << entry.first << "\t" << entry.second << std::endl;
-	}
-	phyloDB->close();
-}
-
-/** Test if given number of seqIDs is a monophyletic group in tree with an allowance of n nodes. */
-bool Tree::test_monophyly(std::unordered_set<seq_id_t> &seqID_set) {
-	Node* lca = find_LCA(seqID_set);	// Find LCA of seqIDs
-
-	int count_strange_leaves = 0; 		// number of leaves that are not in seqID_set
-
-	for (auto const& node : leave_iterator_recurse(lca)) {		// If some node below LCA...
-		if (seqID_set.find(node->ID) == seqID_set.end()) { 	// ...is not in set of seqIDs...
-			count_strange_leaves++;
-			if (count_strange_leaves > fswm_params::g_allowance) {
-				return false;		// ...the group is not monophyletic.
-			}
-		}
-	}
-
-	return true;	// All nodes below LCA are in group, i.e. the group is monophyletic.
 }
 
 /** Check if &child is a node or same as &parent and if so return true, otherwise return false. */
