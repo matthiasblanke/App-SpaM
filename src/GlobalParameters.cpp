@@ -171,7 +171,7 @@ bool GlobalParameters::load_parameters(std::string filename = "") {
 /** Parse option parameters from parameter file or command line. */
 bool GlobalParameters::parse_parameters(int argc, char *argv[]) {
 	int option_param;
-	std::string possible_params = "l:s:t:q:o:w:d:hm:b:v";
+	std::string possible_params = "l:s:t:q:o:w:d:hm:b:vp:";
 	bool usingParameterfile = false;
 
     int index = -1;
@@ -189,6 +189,7 @@ bool GlobalParameters::parse_parameters(int argc, char *argv[]) {
         { "mode", required_argument, 			nullptr, 'm' },
         { "read_block_size", required_argument, nullptr, 'b' },
         { "verbose", no_argument, 				nullptr, 'v' },
+        { "pattern", required_argument, 		nullptr, 'p' },
         { "histogram", no_argument, 			nullptr, 2   },
         { "scoring", no_argument, 				nullptr, 3   },
         { "sampling", no_argument, 				nullptr, 4   },
@@ -254,6 +255,9 @@ bool GlobalParameters::parse_parameters(int argc, char *argv[]) {
 				break;
 			case 'v':
 				fswm_params::g_verbose = true;
+				break;
+			case 'p':
+				fswm_params::g_numPatterns = atoi(optarg);
 				break;
 			case 2:
 				fswm_params::g_writeHistogram = true;
