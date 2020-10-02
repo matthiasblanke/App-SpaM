@@ -113,7 +113,8 @@ bool Tree::parse_newick_tree(std::string treeStr) {
 	}
 	// Check if tree is unrooted an root arbitrarily at lowest level
 	if (root->children.size() > 2) {
-		std::cout << "\t### Be aware that the tree is unrooted and will be rooted arbitrarily. ###" << std::endl;
+		std::cout << "\tThe input tree is unrooted, please use a rooted tree."
+			"\n\tThe tree will be unrooted at the implicit trifurcating root now." << std::endl;
 
 		// Save children that will be below new subtree and remove from children
 		Node* child2 = root->children[1];
@@ -1006,7 +1007,22 @@ void Tree::write_jplace_data_beginning() {
 	jPlaceFile.open(fswm_params::g_outfoldername + fswm_params::g_outjplacename, std::ios_base::app);
 	jPlaceFile << "{\n\t\"version\":3,\n\t"
 		"\"fields\":[\"edge_num\",\"distal_length\",\"pendant_length\",\"like_weight_ratio\",\"likelihood\"],\n"
-		"\t\"metadata\":{\"invocation\":\"\"},\n\t"
+		"\t\"metadata\":{\n"
+			"\t\t\"software\"\t:\t\"App-SpaM\"\n"
+			"\t\t\"More info\"\t:\t\"https://github.com/matthiasblanke/APP-SpaM\"\n\n"
+			"\t\t\"reference_fasta\"\t:\t\"" + fswm_params::g_genomesfname + "\"\n"
+			"\t\t\"tree_newick\"\t:\t\"" + fswm_params::g_reftreefname + "\"\n"
+			"\t\t\"query_fasta\"\t:\t\"" + fswm_params::g_readsfname + "\"\n"
+			"\t\t\"number of patterns\"\t:\t" + std::to_string(fswm_params::g_numPatterns) + "\n"
+			"\t\t\"weight\"\t:\t" + std::to_string(fswm_params::g_weight) + "\n"
+			"\t\t\"dont cares\"\t:\t" + std::to_string(fswm_params::g_spaces) + "\n"
+			"\t\t\"mode\"\t:\t\"" + fswm_params::g_assignmentMode + "\"\n"
+			"\t\t\"filtering threshold\"\t:\t" + std::to_string(fswm_params::g_filteringThreshold) + "\n"
+			"\t\t\"sampling\"\t:\t" + std::to_string(fswm_params::g_sampling) + "\n"
+			"\t\t\"minHashLowerLimit\"\t:\t" + std::to_string(fswm_params::g_minHashLowerLimit) + "\n"
+			"\t\t\"unassembled\"\t:\t" + std::to_string(fswm_params::g_draftGenomes) + "\n"
+			"\t\t\"delimiter\"\t:\t\"" + fswm_params::g_delimiter + "\"\n"
+			"\t},\n\t"
 		"\"tree\":\"" + get_newick_str() + "\",\n"
 		"\t\"placements\":\n"
 		"\t[\n";

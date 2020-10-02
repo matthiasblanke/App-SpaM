@@ -21,7 +21,7 @@
 ReadManager::ReadManager(std::string readsfname) {
 	if (fswm_params::g_verbose) { std::cout << "-> Reading reads from file: " << readsfname << std::endl; }
 
-	SeqIO::read_sequences(readsfname, reads);
+	SeqIO::read_sequences(readsfname, reads, false);
 	if (fswm_params::g_verbose) { std::cout << "\t" << reads.size() << " reads found and read."<< std::endl; }
 
 	partitions = ceil((double) reads.size() / fswm_params::g_readBlockSize);

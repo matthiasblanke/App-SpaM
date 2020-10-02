@@ -26,9 +26,10 @@
 #include <omp.h>
 
 int main(int argc, char *argv[]) {
-	std::cout << "--------------------------------------------------------------" << std::endl;
-	std::cout << " AF Phylogenetic Placement Using Filtered Spaced Word Matches " << std::endl;
-	std::cout << "--------------------------------------------------------------" << std::endl;
+	std::cout << "------------------------------------------------" << std::endl;
+	std::cout << " Alignment-free phylogenetic placement algorithm" << std::endl;
+	std::cout << "           based on spaced word matches         " << std::endl;
+	std::cout << "------------------------------------------------" << std::endl << std::endl;
 
 	// Parse command line options and check for correctness
 	GlobalParameters::parse_parameters(argc,  argv);
@@ -40,7 +41,7 @@ int main(int argc, char *argv[]) {
 
 	Placement::phylogenetic_placement();
 
-	GlobalParameters::save_parameters();
-	GlobalParameters::write_read_ids_to_file();
-	GlobalParameters::write_seq_ids_to_file();
+	//GlobalParameters::save_parameters();
+	//GlobalParameters::write_read_ids_to_file();
+	//GlobalParameters::write_seq_ids_to_file();
 }

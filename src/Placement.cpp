@@ -44,7 +44,7 @@ void Placement::phylogenetic_placement() {
 	//pattern.Print();
 	std::vector<std::string> patterns = pattern.GetPattern();
 
-	std::cout << "pattern size : " << patterns.size() << std::endl;
+	if (fswm_params::g_verbose) { std::cout << "-> Pattern size : " << patterns.size() << std::endl; }
 
 	std::vector<Seed> seeds;
 	for (int i = 0; i < fswm_params::g_numPatterns; i++) {
@@ -66,7 +66,7 @@ void Placement::phylogenetic_placement() {
 	std::cout << "-> Compare reads and genomes." << std::endl;
 	#pragma omp parallel for
 	for (int currentPartition = 0; currentPartition < readManager.get_partitions(); currentPartition++) {
-		std::cout << "Starting partition " << currentPartition << std::endl;
+		if (fswm_params::g_verbose) { std::cout << "-> Starting partition " << currentPartition << std::endl; }
 
 		BucketManager bucketManagerReads;
 		readManager.get_next_partition_BucketManager(seeds, bucketManagerReads);
@@ -78,7 +78,7 @@ void Placement::phylogenetic_placement() {
 
 		#pragma omp critical
 		{
-			std::cout << "-> Calculate distances." << std::endl;
+			std::cout << "-> Calculating distances." << std::endl;
 			fswm_distances.calculate_fswm_distances();
 			std::cout << "-> Placing reads in reference tree." << std::endl;
 			fswm_distances.phylogenetic_placement();

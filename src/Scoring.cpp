@@ -135,7 +135,7 @@ void Scoring::phylogenetic_placement() {
    	}
    	tree.write_jplace_data_end();
 
-   	tree.write_newick(fswm_params::g_outfoldername + "tree.nwk");
+   	// tree.write_newick(fswm_params::g_outfoldername + "tree.nwk");
 }
 
 /** Write jk-corrected distances between all reads and genomes to file. */

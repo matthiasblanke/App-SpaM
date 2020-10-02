@@ -45,6 +45,8 @@ int fswm_params::g_filteringThreshold = GlobalParameters::calculate_filteringThr
 int fswm_params::g_filteringThresholdMultiplicator = 0;
 bool fswm_params::g_sampling = false;
 int fswm_params::g_minHashLowerLimit = 10000;
+bool fswm_params::g_draftGenomes = false;
+std::string fswm_params::g_delimiter = "_";
 
 // Additional options
 uint16_t fswm_params::g_threads = 1;
@@ -171,7 +173,7 @@ bool GlobalParameters::load_parameters(std::string filename = "") {
 /** Parse option parameters from parameter file or command line. */
 bool GlobalParameters::parse_parameters(int argc, char *argv[]) {
 	int option_param;
-	std::string possible_params = "l:s:t:q:o:w:d:hm:b:vp:";
+	std::string possible_params = "l:s:t:q:o:w:d:hm:b:vp:u";
 	bool usingParameterfile = false;
 
     int index = -1;
@@ -190,10 +192,12 @@ bool GlobalParameters::parse_parameters(int argc, char *argv[]) {
         { "read_block_size", required_argument, nullptr, 'b' },
         { "verbose", no_argument, 				nullptr, 'v' },
         { "pattern", required_argument, 		nullptr, 'p' },
+        { "unassembled", no_argument, 			nullptr, 'u' },
         { "histogram", no_argument, 			nullptr, 2   },
         { "scoring", no_argument, 				nullptr, 3   },
         { "sampling", no_argument, 				nullptr, 4   },
         { "threshold", required_argument, 		nullptr, 5   },
+        { "delimiter", required_argument, 		nullptr, 6   },
         0
     };
 
@@ -259,6 +263,9 @@ bool GlobalParameters::parse_parameters(int argc, char *argv[]) {
 			case 'p':
 				fswm_params::g_numPatterns = atoi(optarg);
 				break;
+			case 'u':
+				fswm_params::g_draftGenomes = true;
+				break;
 			case 2:
 				fswm_params::g_writeHistogram = true;
 				break;
@@ -274,6 +281,9 @@ bool GlobalParameters::parse_parameters(int argc, char *argv[]) {
 			case 5:
 				fswm_params::g_filteringThresholdMultiplicator = atoi(optarg);
 				calculate_filteringThreshold();
+				break;
+			case 6:
+				fswm_params::g_delimiter = optarg;
 				break;
 			case '?':
 				print_help();

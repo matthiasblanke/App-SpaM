@@ -22,7 +22,7 @@
 class SeqIO {
     public:
     	static seq_id_t seqID_counter;
-        static void read_sequences(std::string fastafname, std::vector<Sequence> &sequences);
+        static void read_sequences(std::string fastafname, std::vector<Sequence> &sequences, bool genomes);
        	static void reset_seqID_counter();
 };
 

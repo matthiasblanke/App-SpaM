@@ -74,6 +74,9 @@ namespace fswm_params {
 	// When sampling is on, only consider spaced words with crc32(word) < g_minHashLowerLimit.
 	extern int g_minHashLowerLimit;
 
+	extern std::string g_delimiter;
+	extern bool g_draftGenomes;
+
 	//
 	extern int g_numPatterns;
 	extern double g_defaultDistance;

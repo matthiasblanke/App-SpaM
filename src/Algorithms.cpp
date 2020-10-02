@@ -117,7 +117,7 @@ bool Algorithms::fswm_complete(BucketManager &genomeBucketManager, BucketManager
 				wordRead_it++;
 			}
 		}
-		std::cout << "\t\t# matches: " << count << std::endl;
+		if (fswm_params::g_verbose) { std::cout << "\t\t# matches: " << count << std::endl; }
 	}
 
 	if (fswm_params::g_writeHistogram) { histogramFile.close(); }
