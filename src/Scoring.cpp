@@ -124,7 +124,9 @@ void Scoring::phylogenetic_placement() {
 		countMap_it++;
    	}
 
-   	for (const auto &read : readAssignmentTracker) {  // Assign all reads that were not assigned so far to root
+   	// In the rare case, that no spaced words are found: 
+   	// Assign all reads that were not assigned so far to root
+   	for (const auto &read : readAssignmentTracker) {
    		if (!read.second) {
    			readAssignment.push_back(std::pair<seq_id_t, int> (read.first, tree.get_rootID()));
    		}

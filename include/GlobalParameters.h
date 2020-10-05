@@ -62,6 +62,12 @@ namespace fswm_params {
 	// Toggles if scoring list and table are written to files
 	extern bool g_writeScoring;
 
+	// Toggles if a histogram of spaced word matches is written to file
+	extern bool g_writeParameter;
+
+	// Toggles if scoring list and table are written to files
+	extern bool g_writeIDs;
+
 	// Specifies minimum score (filtering threshold) that determines if a spaced word match is considered homologous.
 	extern int g_filteringThreshold;
 
@@ -74,11 +80,16 @@ namespace fswm_params {
 	// When sampling is on, only consider spaced words with crc32(word) < g_minHashLowerLimit.
 	extern int g_minHashLowerLimit;
 
-	extern std::string g_delimiter;
+	// If true, input reference fasta is treated as unassembled genomes with delimiter
 	extern bool g_draftGenomes;
 
-	//
+	// Delimiter for draftGenomes mode
+	extern std::string g_delimiter;
+
+	// Number of automatically optimized patterns used
 	extern int g_numPatterns;
+
+	// Branch lengths of placed queries in fast placement mode; deprecated
 	extern double g_defaultDistance;
 
 	// Full file names of input files

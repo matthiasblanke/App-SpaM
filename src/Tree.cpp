@@ -960,8 +960,9 @@ bool Tree::write_newick(std::string filename) {
 /** Return string of tree in newick format. */
 std::string Tree::get_newick_str(bool write_edge_nums = true) {
 	std::stringstream outputTreeStream;
+	outputTreeStream << "(";
 	get_newick_str_recurse(outputTreeStream, root, 0, write_edge_nums);
-	outputTreeStream << ";";
+	outputTreeStream << ");";
 
 	return outputTreeStream.str();;
 }
@@ -1008,19 +1009,19 @@ void Tree::write_jplace_data_beginning() {
 	jPlaceFile << "{\n\t\"version\":3,\n\t"
 		"\"fields\":[\"edge_num\",\"distal_length\",\"pendant_length\",\"like_weight_ratio\",\"likelihood\"],\n"
 		"\t\"metadata\":{\n"
-			"\t\t\"software\"\t:\t\"App-SpaM\"\n"
-			"\t\t\"More info\"\t:\t\"https://github.com/matthiasblanke/APP-SpaM\"\n\n"
-			"\t\t\"reference_fasta\"\t:\t\"" + fswm_params::g_genomesfname + "\"\n"
-			"\t\t\"tree_newick\"\t:\t\"" + fswm_params::g_reftreefname + "\"\n"
-			"\t\t\"query_fasta\"\t:\t\"" + fswm_params::g_readsfname + "\"\n"
-			"\t\t\"number of patterns\"\t:\t" + std::to_string(fswm_params::g_numPatterns) + "\n"
-			"\t\t\"weight\"\t:\t" + std::to_string(fswm_params::g_weight) + "\n"
-			"\t\t\"dont cares\"\t:\t" + std::to_string(fswm_params::g_spaces) + "\n"
-			"\t\t\"mode\"\t:\t\"" + fswm_params::g_assignmentMode + "\"\n"
-			"\t\t\"filtering threshold\"\t:\t" + std::to_string(fswm_params::g_filteringThreshold) + "\n"
-			"\t\t\"sampling\"\t:\t" + std::to_string(fswm_params::g_sampling) + "\n"
-			"\t\t\"minHashLowerLimit\"\t:\t" + std::to_string(fswm_params::g_minHashLowerLimit) + "\n"
-			"\t\t\"unassembled\"\t:\t" + std::to_string(fswm_params::g_draftGenomes) + "\n"
+			"\t\t\"software\"\t:\t\"App-SpaM\",\n"
+			"\t\t\"More info\"\t:\t\"https://github.com/matthiasblanke/APP-SpaM\",\n\n"
+			"\t\t\"reference_fasta\"\t:\t\"" + fswm_params::g_genomesfname + "\",\n"
+			"\t\t\"tree_newick\"\t:\t\"" + fswm_params::g_reftreefname + "\",\n"
+			"\t\t\"query_fasta\"\t:\t\"" + fswm_params::g_readsfname + "\",\n"
+			"\t\t\"number of patterns\"\t:\t" + std::to_string(fswm_params::g_numPatterns) + ",\n"
+			"\t\t\"weight\"\t:\t" + std::to_string(fswm_params::g_weight) + ",\n"
+			"\t\t\"dont cares\"\t:\t" + std::to_string(fswm_params::g_spaces) + ",\n"
+			"\t\t\"mode\"\t:\t\"" + fswm_params::g_assignmentMode + "\",\n"
+			"\t\t\"filtering threshold\"\t:\t" + std::to_string(fswm_params::g_filteringThreshold) + ",\n"
+			"\t\t\"sampling\"\t:\t" + std::to_string(fswm_params::g_sampling) + ",\n"
+			"\t\t\"minHashLowerLimit\"\t:\t" + std::to_string(fswm_params::g_minHashLowerLimit) + ",\n"
+			"\t\t\"unassembled\"\t:\t" + std::to_string(fswm_params::g_draftGenomes) + ",\n"
 			"\t\t\"delimiter\"\t:\t\"" + fswm_params::g_delimiter + "\"\n"
 			"\t},\n\t"
 		"\"tree\":\"" + get_newick_str() + "\",\n"

@@ -34,14 +34,14 @@ int main(int argc, char *argv[]) {
 	// Parse command line options and check for correctness
 	GlobalParameters::parse_parameters(argc,  argv);
 	GlobalParameters::check_parameters();
-	if (fswm_params::g_verbose) {GlobalParameters::print_to_console();};
+	if (fswm_params::g_verbose) {GlobalParameters::print_to_console(); };
 
 	omp_set_dynamic(0);
 	omp_set_num_threads(fswm_params::g_threads);
 
 	Placement::phylogenetic_placement();
 
-	//GlobalParameters::save_parameters();
-	//GlobalParameters::write_read_ids_to_file();
-	//GlobalParameters::write_seq_ids_to_file();
+	if (fswm_params::g_writeParameter) { GlobalParameters::save_parameters(); };
+	if (fswm_params::g_writeIDs) { GlobalParameters::write_read_ids_to_file(); };
+	if (fswm_params::g_writeIDs) { GlobalParameters::write_seq_ids_to_file(); };
 }

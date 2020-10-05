@@ -53,6 +53,8 @@ uint16_t fswm_params::g_threads = 1;
 uint32_t fswm_params::g_readBlockSize = 100000;
 bool fswm_params::g_writeHistogram = false;
 bool fswm_params::g_writeScoring = false;
+bool fswm_params::g_writeParameter = false;
+bool fswm_params::g_writeIDs = false;
 double fswm_params::default_distance_new_leaves = 0.001;
 int fswm_params::g_numPatterns = 10;
 double fswm_params::g_defaultDistance = 10;
@@ -193,11 +195,13 @@ bool GlobalParameters::parse_parameters(int argc, char *argv[]) {
         { "verbose", no_argument, 				nullptr, 'v' },
         { "pattern", required_argument, 		nullptr, 'p' },
         { "unassembled", no_argument, 			nullptr, 'u' },
-        { "histogram", no_argument, 			nullptr, 2   },
-        { "scoring", no_argument, 				nullptr, 3   },
+        { "write-histogram", no_argument, 		nullptr, 2   },
+        { "write-scores", no_argument, 			nullptr, 3   },
         { "sampling", no_argument, 				nullptr, 4   },
         { "threshold", required_argument, 		nullptr, 5   },
         { "delimiter", required_argument, 		nullptr, 6   },
+        { "write-parameter", no_argument, 		nullptr, 7   },
+        { "write-ids", no_argument, 			nullptr, 8   },
         0
     };
 
@@ -284,6 +288,12 @@ bool GlobalParameters::parse_parameters(int argc, char *argv[]) {
 				break;
 			case 6:
 				fswm_params::g_delimiter = optarg;
+				break;
+			case 7:
+				fswm_params::g_writeParameter = true;
+				break;
+			case 8:
+				fswm_params::g_writeIDs = true;
 				break;
 			case '?':
 				print_help();

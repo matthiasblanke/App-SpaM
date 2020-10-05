@@ -73,18 +73,18 @@ There are several other parameters that can influence the accuracy, speed, and o
 | `-w`     | `--weight`     | `12`     | Weight of pattern (number of _match positions_ (1s)). Higher weight generally leads to faster computation, but on small datasets it may result in too few spaced words, resulting in low accuracy. |
 | `-d`     | `--dontCare`     | `32`     | Number of _don't care positions_ in pattern (number of 0s). |
 | `-g`     | `--mode`     | `LCACOUNT`     | Assignment mode determines how a placement position is chosen from the calculated reference-query distances. For more information see paper. Possible values are: `MINDIST`,`SPAMCOUNT`,`LCADIST`,`LCACOUNT`, `APPLES`...|
-| `-u`     | `--unassembled`     | `False`     | If this flag is set, the references can be unassembled, see below. |
+| `-u`     | `--unassembled`     |     | Enables support for unassembled references, see below. |
 |      | `--delimiter`     | `"-"`     | Specifies delimiter in reference names when unassembled mode is executed. All reads from the same reference should have this delimiter in their name. They are then regarded as one reference sequence. |
-| `-h`     | `--help`     | `False`     | Show help and exit. |
+| `-h`     | `--help`     |     | Show help and exit. |
 
 **Further**
 | Parameter | Full name | Default | Info |
 | -------- | -------- | -------- | -------- |
 | `-b`     | `--read_block_size`     | `100000`     | Weight of pattern (number of match positions). Higher weight generally leads to faster computation, but on small datasets it may result in too few spaced words, resulting in low accuracy. |
-| `-v`     | `--verbose`     | `False`     | Outputs additional information about the current run on the standard output. |
+| `-v`     | `--verbose`     |       | Outputs additional information about the current run on the standard output. |
 |      | `--threads`       | `1`     | Specify number of threads to use. |
-|      | `--histogram`     | `False`     | Writes a histogram of all spaced word matches to file `histogram.txt`. |
-|      | `--scoring`       | `False`     | Writes file with all pairwise distances between references and queries to file `scoring_table.txt`. |
+|      | `--write-histogram`     |    | Write a histogram of all spaced word matches to file `histogram.txt`. |
+|      | `--write-scoring`       |     | Write file with all pairwise distances between references and queries to file `scoring_table.txt`. |
 |      | `--threshold`     | `0`     | Specifies filtering threshold of spaced word filtering procedure. |
 
 ### Further help
