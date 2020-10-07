@@ -1041,12 +1041,17 @@ void Tree::write_jplace_data_end() {
 }
 
 /** For each assigned read, write placement data to jplace file. */
-void Tree::write_jplace_placement_data(std::vector<std::pair<seq_id_t, int>> readAssignment) {
+void Tree::write_jplace_placement_data(std::vector<std::pair<seq_id_t, int>> &readAssignment, scoringMap_t &scoringMap) {
 	std::ofstream jPlaceFile;
 	jPlaceFile.open(fswm_params::g_outfoldername + fswm_params::g_outjplacename, std::ios_base::app);
 
 	int i = 0;
 	bool first = true;
+
+	double distal_length = 0;
+	double pendant_length = fswm_params::default_distance_new_leaves;
+	double dist_refs = 0;
+	double dist_current_edge = 0;
 
 	for (auto const& read : readAssignment) {
 		if (first) {
@@ -1055,9 +1060,29 @@ void Tree::write_jplace_placement_data(std::vector<std::pair<seq_id_t, int>> rea
 		else {
 			jPlaceFile << ",";
 		}
+
+		
+		// Determine distal and pendant branch lengths
+		if (fswm_params::g_assignmentMode == "MINDIST" or fswm_params::g_assignmentMode == "SPAMCOUNT") {
+			dist_refs = scoringMap[read.first][read.second];
+			dist_current_edge = find_node(read.second)->distance;
+			if (dist_refs < 2*dist_current_edge) {
+				distal_length = dist_refs / 2;
+				pendant_length = dist_refs / 2;
+			}
+			else {
+				distal_length = dist_current_edge;
+				pendant_length = dist_refs - dist_current_edge;
+			}
+		}
+		if (fswm_params::g_assignmentMode == "LCACOUNT" or fswm_params::g_assignmentMode == "LCADIST") {
+			distal_length = find_node(read.second)->distance/2; 
+		}
+
 		jPlaceFile << "\t\t{\n"
 					  "\t\t\t\"p\":\n"
-		              "\t\t\t[[" + std::to_string(fswm_internal::IDsToPlacementIDs[read.second]) + "," + std::to_string(find_node(read.second)->distance/2) + "," + std::to_string(fswm_params::default_distance_new_leaves) + ",1,1]],\n"
+		              "\t\t\t[[" + std::to_string(fswm_internal::IDsToPlacementIDs[read.second]) + "," + 
+		              	std::to_string(distal_length) + "," + std::to_string(pendant_length) + ",1,1]],\n"
 		              "\t\t\t\"nm\":\n"
 		              "\t\t\t[[\"" + fswm_internal::readIDsToNames[read.first] + "\", 1]]\n"
 		              "\t\t}";

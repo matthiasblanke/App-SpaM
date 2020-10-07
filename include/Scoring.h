@@ -42,8 +42,6 @@ class Scoring {
 		countMap_t kmerCountsMap;
 		scoringMap_t scoringMap;
 		countMap_t mismatchCount;
-		countMap_t transitionCount;
-		countMap_t transversionCount;
 		countMap_t spacedWordMatchCount;
 
 		Scoring();

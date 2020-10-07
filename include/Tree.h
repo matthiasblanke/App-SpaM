@@ -91,7 +91,7 @@ class Tree {
 		// JPlace writing
 		void write_jplace_data_beginning();
 		void write_jplace_data_end();
-		void write_jplace_placement_data(std::vector<std::pair<seq_id_t, int>> readAssignment);
+		void write_jplace_placement_data(std::vector<std::pair<seq_id_t, int>> &readAssignment, scoringMap_t &scoringMap);
 		void write_multiple_jplace(std::vector<std::pair<seq_id_t, double>> placements, bool first, seq_id_t seqID);
 		std::string get_newick_str(bool write_edge_nums);
 

@@ -81,8 +81,6 @@ bool Algorithms::fswm_complete(BucketManager &genomeBucketManager, BucketManager
 						for (int i = 0; i < fswm_params::g_spaces; i++) {
 							score += substMat.chiaromonte[(dontCaresGenome & 0x03)][(dontCaresRead & 0x03)];
 							mismatches += substMat.mismatch[(dontCaresGenome & 0x03)][(dontCaresRead & 0x03)];
-							transitions += substMat.transition[(dontCaresGenome & 0x03)][(dontCaresRead & 0x03)];
-							transversions += substMat.transversion[(dontCaresGenome & 0x03)][(dontCaresRead & 0x03)];
 							dontCaresRead = dontCaresRead >> 2;
 							dontCaresGenome = dontCaresGenome >> 2;
 						}
@@ -101,14 +99,10 @@ bool Algorithms::fswm_complete(BucketManager &genomeBucketManager, BucketManager
 							if (fswm_distances.scoringMap.find(readSeqID) == fswm_distances.scoringMap.end()) {
 								fswm_distances.scoringMap[readSeqID] = std::unordered_map<seq_id_t, scoring_t>();
 								fswm_distances.mismatchCount[readSeqID] = std::unordered_map<seq_id_t, count_t>();
-								fswm_distances.transitionCount[readSeqID] = std::unordered_map<seq_id_t, count_t>();
-								fswm_distances.transversionCount[readSeqID] = std::unordered_map<seq_id_t, count_t>();
 								fswm_distances.spacedWordMatchCount[readSeqID] = std::unordered_map<seq_id_t, count_t>();
 							}
 							fswm_distances.scoringMap[readSeqID][genomeSeqID] += score;
 							fswm_distances.mismatchCount[readSeqID][genomeSeqID] += mismatches;
-							fswm_distances.transitionCount[readSeqID][genomeSeqID] += transitions;
-							fswm_distances.transversionCount[readSeqID][genomeSeqID] += transversions;
 							fswm_distances.spacedWordMatchCount[readSeqID][genomeSeqID] += 1;
 						}
 					}

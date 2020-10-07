@@ -50,7 +50,7 @@ std::string fswm_params::g_delimiter = "_";
 
 // Additional options
 uint16_t fswm_params::g_threads = 1;
-uint32_t fswm_params::g_readBlockSize = 100000;
+uint32_t fswm_params::g_readBlockSize = 1000;
 bool fswm_params::g_writeHistogram = false;
 bool fswm_params::g_writeScoring = false;
 bool fswm_params::g_writeParameter = false;

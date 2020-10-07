@@ -5,9 +5,9 @@ _**A**lignment-free **p**hylogenetic **p**lacement algorithm based on **SPA**ced
 - A `.newick` file containing the reference phylogeny. The phylogeny comprises the exact same references as the `.fasta` file of references. 
 - A `.fasta` file with query sequences that are to be placed in the reference phylogeny.
 
-_App-SpaM_ will place each of the query sequences into the reference phylogeny at a phylogenetically appropriate position. The placement is based on the concept of _Spaced Word Matches_ (_FSWM_[^FSWM]). Depending on the chosen placement heuristic, _App-SpaM_ uses either the number of spaced word matches between query and references, or the estimated number of nucleotide substitutions per sequence position between query and references. The output is a _JPlace_[^JPlace] file containing all query placements.
+_App-SpaM_ will place each of the query sequences into the reference phylogeny at a phylogenetically appropriate position. The placement is based on the concept of _Spaced Word Matches_ (_FSWM_<sup id="a1">[1](#f1)</sup>). Depending on the chosen placement heuristic, _App-SpaM_ uses either the number of spaced word matches between query and references, or the estimated number of nucleotide substitutions per sequence position between query and references. The output is a _JPlace_<sup id="a2">[2](#f2)</sup> file containing all query placements.
 
-We are planning to have _App-SpaM_ also available in _PEWO_, the _**P**lacement **E**valuation **WO**rkflows_[^PEWO], a tool developed to rapidly test and compare tools for phylogenetic placement.
+We are planning to have _App-SpaM_ also available in _PEWO_, the _**P**lacement **E**valuation **WO**rkflows_<sup id="a3">[3](#f3)</sup>, a tool developed to rapidly test and compare tools for phylogenetic placement.
 
 When using _App-SpaM_, please cite:
 _In preparation_
@@ -25,11 +25,11 @@ At the moment, _App-SpaM_'s parallelization is performed via OpenMP. Most modern
 ### Installing _App-SpaM_
 On the command line, download the newest version of _App-SpaM_ (alternatively download and unpack the `.zip`-Archive from this Github page):
 ```bash
-git clone https://github.com/matthiasblanke/_App-SpaM_
+git clone https://github.com/matthiasblanke/APP-SpaM
 ```
 Navigate into the _App-SpaM_ directory, create a build folder, and navigate into it:
 ```bash
-cd path/to/appspam
+cd APP-SpaM
 mkdir build
 cd build
 ```
@@ -62,7 +62,20 @@ The paths can be either absolut paths, or relative to your current working direc
 If other output files are produced (see below) they will be placed in the same folder as the _JPlace_ file.
 
 ### Using unassembled references
-Will be updated soon.
+_App-SpaM_ can perform phylogenetic placement based on unassembled query sequences. To enable this use the `-u` or `--unassembled` flag.
+
+In this mode you still supply only one `fasta`-file for the reference sequences. All sequences within this file that share the same prefix before the specified separator will be regarded as originating from the same reference sequence. E.g., the following `fasta`-file will be interpreted as having only two references named `Seq1` and `Seq2`, both consisting of two sequences:
+```
+>Seq1-1
+AAAA
+>Seq1-2
+CCCC
+>Seq2-a
+GGGG
+>Seq2-b
+TTTT
+```
+The sequence names before the separator (`Seq1` and `Seq2`) must be identical to the sequence names in the reference tree. The default separator is set to `-` but can be changed to any other string using the `--delimiter` argument.
 
 ### Parameters
 There are several other parameters that can influence the accuracy, speed, and output of _App-SpaM_:
@@ -72,6 +85,7 @@ There are several other parameters that can influence the accuracy, speed, and o
 | -------- | -------- | -------- | -------- |
 | `-w`     | `--weight`     | `12`     | Weight of pattern (number of _match positions_ (1s)). Higher weight generally leads to faster computation, but on small datasets it may result in too few spaced words, resulting in low accuracy. |
 | `-d`     | `--dontCare`     | `32`     | Number of _don't care positions_ in pattern (number of 0s). |
+| `-p`     | `--pattern`     | `10`     | Number of patterns used. For every pattern, spaced words are extracted from the sequences. Use fewer patterns for faster running speeds. |
 | `-g`     | `--mode`     | `LCACOUNT`     | Assignment mode determines how a placement position is chosen from the calculated reference-query distances. For more information see paper. Possible values are: `MINDIST`,`SPAMCOUNT`,`LCADIST`,`LCACOUNT`, `APPLES`...|
 | `-u`     | `--unassembled`     |     | Enables support for unassembled references, see below. |
 |      | `--delimiter`     | `"-"`     | Specifies delimiter in reference names when unassembled mode is executed. All reads from the same reference should have this delimiter in their name. They are then regarded as one reference sequence. |
@@ -80,7 +94,6 @@ There are several other parameters that can influence the accuracy, speed, and o
 **Further**
 | Parameter | Full name | Default | Info |
 | -------- | -------- | -------- | -------- |
-| `-b`     | `--read_block_size`     | `100000`     | Weight of pattern (number of match positions). Higher weight generally leads to faster computation, but on small datasets it may result in too few spaced words, resulting in low accuracy. |
 | `-v`     | `--verbose`     |       | Outputs additional information about the current run on the standard output. |
 |      | `--threads`       | `1`     | Specify number of threads to use. |
 |      | `--write-histogram`     |    | Write a histogram of all spaced word matches to file `histogram.txt`. |
@@ -93,24 +106,23 @@ Write to matthias.blanke@biologie.uni-goettingen.de
 ## Publication
 ### Associated publication
 follows
-### Data sets used for comparison
-follows
-### Additional materials
+### Supplementary materials
 follows
 
 ## Links
-[^FSWM]: C.-A. Leimeister, S. Sohrabi-Jahromi, B. Morgenstern (2017)
+<b id="f1">1</b>: C.-A. Leimeister, S. Sohrabi-Jahromi, B. Morgenstern (2017)
     Fast and Accurate Phylogeny Reconstruction using Filtered Spaced-Word Matches
-    Bioinfomatics 33, 971-979, DOI 10.1093/bioinformatics/btw776
-
+    Bioinfomatics 33, 971-979, https://doi.org/10.1093/bioinformatics/btw776
     https://github.com/burkhard-morgenstern/FSWM
+    [↩](#a1)
 
-[^JPlace]:  Matsen FA, Hoffman NG, Gallagher A, Stamatakis A (2012)
+<b id="f2">2</b>:  Matsen FA, Hoffman NG, Gallagher A, Stamatakis A (2012)
     A Format for Phylogenetic Placements. 
     PLoS ONE 7(2): e31009. https://doi.org/10.1371/journal.pone.0031009
+    [↩](#a2)
 
-[^PEWO]: Benjamin Linard, Nikolai Romashchenko, Fabio Pardi, Eric Rivals
+<b id="f3">3</b>: Benjamin Linard, Nikolai Romashchenko, Fabio Pardi, Eric Rivals
     PEWO: a collection of workflows to benchmark phylogenetic placement
     Bioinformatics, btaa657, https://doi.org/10.1093/bioinformatics/btaa657
-
     https://github.com/phylo42/PEWO
+    [↩](#a3)

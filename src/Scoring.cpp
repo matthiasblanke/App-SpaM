@@ -31,8 +31,6 @@ Scoring::Scoring() {
 /** Calculate jk-corrected distances between fswm based on mismatch counts. */
 void Scoring::calculate_fswm_distances() {
 	double substFreq = 0;	// Calculated plain substitution frequency
-	double transitionFreq = 0;
-	double transversionFreq = 0;
 	double jk = 0;			// Jukes-Cantor corrected substitution frequency
 
 	scoringMap_t::iterator it1 = scoringMap.begin();
@@ -133,7 +131,7 @@ void Scoring::phylogenetic_placement() {
    	}
 
    	if (fswm_params::g_assignmentMode != "APPLES" and fswm_params::g_assignmentMode != "SAS" and fswm_params::g_assignmentMode != "SAC" and fswm_params::g_assignmentMode != "SCOREALL") {
-   		tree.write_jplace_placement_data(readAssignment);
+   		tree.write_jplace_placement_data(readAssignment, this->scoringMap);
    	}
    	tree.write_jplace_data_end();
 
