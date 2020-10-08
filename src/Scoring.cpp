@@ -66,7 +66,6 @@ void Scoring::calculate_fswm_distances() {
 /** Assign reads to reference tree of genome. */
 void Scoring::phylogenetic_placement() {
 	Tree tree(fswm_params::g_reftreefname);				// Read and create reference tree
-	tree.write_jplace_data_beginning();
 	int min_j;											// Currently minimum assigned genome. -1 for unassigned.
 	countMap_t::iterator countMap_it = spacedWordMatchCount.begin();
 
@@ -133,7 +132,6 @@ void Scoring::phylogenetic_placement() {
    	if (fswm_params::g_assignmentMode != "APPLES" and fswm_params::g_assignmentMode != "SAS" and fswm_params::g_assignmentMode != "SAC" and fswm_params::g_assignmentMode != "SCOREALL") {
    		tree.write_jplace_placement_data(readAssignment, this->scoringMap);
    	}
-   	tree.write_jplace_data_end();
 
    	// tree.write_newick(fswm_params::g_outfoldername + "tree.nwk");
 }

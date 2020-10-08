@@ -960,9 +960,9 @@ bool Tree::write_newick(std::string filename) {
 /** Return string of tree in newick format. */
 std::string Tree::get_newick_str(bool write_edge_nums = true) {
 	std::stringstream outputTreeStream;
-	outputTreeStream << "(";
+	//outputTreeStream << "(";
 	get_newick_str_recurse(outputTreeStream, root, 0, write_edge_nums);
-	outputTreeStream << ");";
+	outputTreeStream << ";";
 
 	return outputTreeStream.str();;
 }

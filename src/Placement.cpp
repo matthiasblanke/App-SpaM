@@ -62,6 +62,11 @@ void Placement::phylogenetic_placement() {
 	// Create empty output files
 	Placement::create_output_files();
 
+	Tree tree(fswm_params::g_reftreefname);				// Read and create reference tree
+	if (fswm_params::g_assignmentMode != "APPLES") {
+		tree.write_jplace_data_beginning();
+	}
+
 	// Compare buckets of reads and genomes
 	std::cout << "-> Compare reads and genomes." << std::endl;
 	#pragma omp parallel for
@@ -88,6 +93,10 @@ void Placement::phylogenetic_placement() {
 				fswm_distances.write_scoring_to_file_as_table();
 			}
 		}
+	}
+
+	if (fswm_params::g_assignmentMode != "APPLES") {
+		tree.write_jplace_data_end();
 	}
 
 	if (fswm_params::g_assignmentMode == "APPLES") {
