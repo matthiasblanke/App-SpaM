@@ -83,9 +83,9 @@ void Placement::phylogenetic_placement() {
 
 		#pragma omp critical
 		{
-			std::cout << "-> Calculating distances." << std::endl;
+			if (fswm_params::g_verbose) { std::cout << "-> Calculating distances." << std::endl; }
 			fswm_distances.calculate_fswm_distances();
-			std::cout << "-> Placing reads in reference tree." << std::endl;
+			if (fswm_params::g_verbose) { std::cout << "-> Placing reads in reference tree." << std::endl; }
 			fswm_distances.phylogenetic_placement();
 
 			if (fswm_params::g_writeScoring or fswm_params::g_assignmentMode == "APPLES") {

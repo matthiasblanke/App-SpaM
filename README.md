@@ -1,4 +1,4 @@
-# **A**lignment-free **p**hylogenetic **p**lacement algorithm based on **SPA**ced-word **M**atches
+# **A**lignment-free **p**hylogenetic **p**lacement algorithm based on **Spa**ced-word **M**atches
 
 _**A**lignment-free **p**hylogenetic **p**lacement algorithm based on **SPA**ced-word **M**atches_ (_App-SpaM_) is a software for performing _phylogenetic placement_. Phylogenetic placement is the task of placing (usually short) query sequences of unknown taxonomic origin into an existing phylogeny of reference sequences. The input normally consists of three files:
 - A `.fasta` file with reference sequences.
