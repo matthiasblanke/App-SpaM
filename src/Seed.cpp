@@ -32,8 +32,8 @@ Seed::Seed(int32_t weight, int32_t dontCare) {
  * Generates a pattern suitable for the dataset.
  */
 bool Seed::generate_pattern(std::string &patternStr) {
-	for(int32_t i = 0; i < patternStr.length(); i++) {
-		if (patternStr[i] == '1') {
+	for(int i = 0; i < patternStr.length(); i++) {
+		if (patternStr[uint(i)] == '1') {
 			matchPos.push_back(i);
 		} else {
 			dontCarePos.push_back(i);

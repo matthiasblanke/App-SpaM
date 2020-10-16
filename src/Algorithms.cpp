@@ -41,11 +41,11 @@ bool Algorithms::fswm_complete(BucketManager &genomeBucketManager, BucketManager
 		std::vector<Word> wordsReads = bucketReads.get_words();
 
 		// Get vector of word groups. First int is starting position, second int length of group
-		std::vector<std::pair<int,int>> wordGroupGenomes = bucketGenomes.get_wordGroups();
-		std::vector<std::pair<int,int>> wordGroupReads = bucketReads.get_wordGroups();
+		std::vector<std::pair<uint,uint>> wordGroupGenomes = bucketGenomes.get_wordGroups();
+		std::vector<std::pair<uint,uint>> wordGroupReads = bucketReads.get_wordGroups();
 
-		std::vector<std::pair<int,int>>::const_iterator wordGenome_it = wordGroupGenomes.cbegin();
-		std::vector<std::pair<int,int>>::const_iterator wordRead_it = wordGroupReads.cbegin();
+		std::vector<std::pair<uint,uint>>::const_iterator wordGenome_it = wordGroupGenomes.cbegin();
+		std::vector<std::pair<uint,uint>>::const_iterator wordRead_it = wordGroupReads.cbegin();
 
 		if (fswm_params::g_verbose) {
 			std::cout << "\tBucket: " << bucketGenomes.get_minimizer() << std::endl;
@@ -75,8 +75,6 @@ bool Algorithms::fswm_complete(BucketManager &genomeBucketManager, BucketManager
 
 						int score = 0;
 						int mismatches = 0;
-						int transitions = 0;
-						int transversions = 0;
 
 						for (int i = 0; i < fswm_params::g_spaces; i++) {
 							score += substMat.chiaromonte[(dontCaresGenome & 0x03)][(dontCaresRead & 0x03)];

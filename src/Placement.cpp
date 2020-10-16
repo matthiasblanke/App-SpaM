@@ -34,8 +34,8 @@
 
 void Placement::phylogenetic_placement() {
 	// Initialize pattern
-	Pattern pattern = Pattern(NULL, NULL, fswm_params::g_numPatterns, fswm_params::g_weight + fswm_params::g_spaces,
-			fswm_params::g_weight, 10000, 10000, 10000, 0.75, 0.25, 0); // Create pattern with seed
+	Pattern pattern = Pattern(fswm_params::g_numPatterns, fswm_params::g_weight + fswm_params::g_spaces,
+			fswm_params::g_weight, 0); // Create pattern with seed
 
 	pattern.Silent();
 	pattern.ImproveSecure();

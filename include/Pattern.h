@@ -31,35 +31,27 @@
 class Pattern{
 	public:
 		Pattern();
-		Pattern(char* pattern_file, char* align_file);
-		Pattern(char* pattern_file, char* align_file, int size, int length, int weight, int l_hom, int l1, int l2, double p, double q);
-		Pattern(char* pattern_file, char* align_file, int size, int length, int weight, int l_hom, int l1, int l2, double p, double q, int seed);
-		Pattern(int size, int length, int weight);
+		Pattern(long size, long length, int weight, uint seed);
 		~Pattern();
 
 		void ReinitPattern();
 
 		std::vector<std::string> GetPattern();
 		std::vector<std::string> GetBestPattern();
-		std::string GetPattern(int number);
-		std::string GetBestPattern(int number);
+		std::string GetPattern(uint number);
+		std::string GetBestPattern(uint number);
 
 		double Variance();
 		double GetVariance();
 		double GetBestVariance();
 		double GetNormVariance();
 		double GetBestNormVariance();
-		double GetP();
-		double GetQ();
 		int GetWeight();
 		int GetSize();
 		int GetLength();
-		int GetLHom();
-		int GetL1();
-		int GetL2();
 		int GetWorstPatMaxVal();
 		int GetWorstPatMaxPat();
-		bool UniqPattern(int number);
+		bool UniqPattern(uint number);
 		void Improve(int limit);
 		void ImproveLoop(int limit);
 		void ImproveMaxValue(int limit);
@@ -69,33 +61,21 @@ class Pattern{
 		void Quiet();
 		void Silent();
 		void Print();
-		void PrintBest();
-		void ChangePatternRandom(int number);
+		void ChangePatternRandom(uint number);
 
 	protected:
 		void InitMatrix();
 
-		std::vector<std::string> SplitString(std::string pattern, char* tokens);
-		bool ValidatePatternsFormat(std::string pattern_form);
-		bool ValidatePatternConditions();
-		int PatternWeight(std::string pattern_wght);
 		std::vector<std::string> CreateRandomPattern();
 		std::vector<std::string> PatternCopy(std::vector<std::string>old_pattern);
 
 		double CalcVariance();
-		double CalcVarianceAlign();
 		int ShiftPos(int p1, int p2, int s);
 		int WorstPattern_max_val();
 		int WorstPattern_max_pat();
 		void DoImprove(int limit, bool max_val, bool max_pat, bool loop);
 
-		void ReadAlign();
 		int LengthSeq(std::vector<std::string> seq);
-		std::vector<double> BackgroundProb(std::vector<std::string> sequence);
-		void InitQValues();
-		void InitPValues();
-		double CountMatch(int pos1, int pos2);
-		int CountHom(int pos1, int pos2);
 
 		double Gauss();
 		double MaxNumberPattern(int p_weight, int p_length);
@@ -109,21 +89,14 @@ class Pattern{
 		std::vector<std::string> pattern_set;
 		std::vector<std::string> best_pattern;
 		std::vector<std::vector<double> > var_sum;			/*Contains for each pattern pair the share of the complete variance...*/
-		std::vector<std::vector<int> > l_hom_val;			/*...which means, the summation of the upper triangulare matrix represents the complete variance*/
-		std::vector<std::vector<double> > p_values;
 		std::vector<int> seq_leng;
 		double variance;
 		double best_variance;
-		int size;
-		int length;
+		long size;
+		long length;
 		int weight;
-		int l_hom;
-		int l1;
-		int l2;
 		double p;
 		double q;
-		char* pattern_file = NULL;
-		char* align_file = NULL;
 		bool improve;
 		bool quiet;
 		bool silent;

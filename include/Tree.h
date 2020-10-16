@@ -52,18 +52,6 @@ class Tree {
 		seq_id_t get_LCA_best_score(scoringMap_t::iterator &it);
 		seq_id_t get_LCA_best_weighted(scoringMap_t::iterator &it_score, countMap_t::iterator &it_count);
 
-		seq_id_t get_node_root_descent_best_score(scoringMap_t::iterator &it);
-		seq_id_t get_node_root_descent_best_count(countMap_t::iterator &it);
-		seq_id_t get_node_root_descent_best_weighted_score(scoringMap_t::iterator &it_score, countMap_t::iterator &it_count);
-		seq_id_t get_node_root_descent_best_path();
-
-		void score_all(scoringMap_t::iterator &it_score, countMap_t::iterator &it_count, bool first);
-		void score_all_avg_sim_score(scoringMap_t::iterator &it_score, countMap_t::iterator &it_count, bool first);
-		void score_all_avg_sim_count(scoringMap_t::iterator &it_score, countMap_t::iterator &it_count, bool first);
-
-		double gamma_k2(double x);
-		double custom_weighting_function_score(int x);
-		double custom_weighting_function_count(int x);
 
 		// Helper functions for assignment mode methods
 		void fill_internals_min_score();
@@ -71,7 +59,6 @@ class Tree {
 		void fill_internals_avg_score();
 		void fill_internals_max_count();
 		void fill_internals_sum_count();
-		void fill_internals_weighted_min_score();
 
 		void fill_leaves_below();
 
@@ -79,7 +66,6 @@ class Tree {
 		void set_similarityScores(scoringMap_t::iterator &it);
 		void reset_similarityScores();
 		void set_weights_to_counts(countMap_t::iterator &it);
-		void set_weights_to_lca_counts(std::unordered_map<seq_id_t,int> &map);
 		void reset_weights();
 
 		seq_id_t get_rootID();

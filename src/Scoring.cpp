@@ -90,30 +90,6 @@ void Scoring::phylogenetic_placement() {
 		else if (fswm_params::g_assignmentMode == "LCADIST") {
 			min_j = tree.get_LCA_best_score(scoringMap_it);
 		}
-		else if (fswm_params::g_assignmentMode == "DESCENTCOUNT") {
-			min_j = tree.get_node_root_descent_best_count(countMap_it);
-		}
-		else if (fswm_params::g_assignmentMode == "DESCENTSCORE") {
-			min_j = tree.get_node_root_descent_best_score(scoringMap_it);
-		}
-		else if (fswm_params::g_assignmentMode == "BESTWEIGHTED") {
-			min_j = tree.get_node_best_weighted(scoringMap_it, countMap_it);
-		}
-		else if (fswm_params::g_assignmentMode == "LCAWEIGHTED") {
-			min_j = tree.get_LCA_best_weighted(scoringMap_it, countMap_it);
-		}
-		else if (fswm_params::g_assignmentMode == "DESCENDWEIGHTED") {
-			min_j = tree.get_node_root_descent_best_weighted_score(scoringMap_it, countMap_it);
-		}
-		else if (fswm_params::g_assignmentMode == "SCOREALL") {
-			tree.score_all(scoringMap_it, countMap_it, first);
-		}
-		else if (fswm_params::g_assignmentMode == "SAS") {
-			tree.score_all_avg_sim_score(scoringMap_it, countMap_it, first);
-		}
-		else if (fswm_params::g_assignmentMode == "SAC") {
-			tree.score_all_avg_sim_count(scoringMap_it, countMap_it, first);
-		}
 		first = false;
 		readAssignment.push_back(std::pair<seq_id_t, int> (scoringMap_it->first, min_j));  // assign read to some internal leave, determined based on assignment mode
 		readAssignmentTracker[scoringMap_it->first] = true;

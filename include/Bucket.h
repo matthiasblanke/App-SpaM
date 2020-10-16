@@ -29,7 +29,7 @@ class Bucket {
 		// They are represented by pairs of integers, the first encoding the start
 		// position of the group in the sorted words vector, the second encoding the
 		// number of elements in this group
-		std::vector<std::pair<int, int>> wordGroups;
+		std::vector<std::pair<uint, uint>> wordGroups;
 
 	public:
 		// Constructors
@@ -45,7 +45,7 @@ class Bucket {
 		std::vector<Word>& get_words();
 		minimizer_t get_minimizer() const;
 		uint32_t get_bucketSize() const;
-		std::vector<std::pair<int, int>>& get_wordGroups();
+		std::vector<std::pair<uint, uint>>& get_wordGroups();
 
 		// Compare buckets only based on their associated minimizer
 		bool operator>(const Bucket& otherBucket) const {
@@ -88,7 +88,7 @@ inline minimizer_t Bucket::get_minimizer() const {
 	return minimizer;
 }
 
-inline std::vector<std::pair<int, int>>& Bucket::get_wordGroups() {
+inline std::vector<std::pair<uint, uint>>& Bucket::get_wordGroups() {
 	return wordGroups;
 }
 

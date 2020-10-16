@@ -29,19 +29,20 @@ Bucket::Bucket(minimizer_t minimizer) {
  */
 bool Bucket::create_wordGroups() {
 	this->sort_words();
-	int currentGroupSize = 1;
-	int currentWord_idx = 0;
-	word_t currentMatchesHash;
+	uint currentGroupSize = 1;
+	uint currentWord_idx = 0;
+	word_t currentMatchesHash = 0;
+
 	if (words.size() > 0) {
 		currentMatchesHash = words[currentWord_idx].matches;
 	}
 
-	for (int idx = 1; idx < words.size(); idx++) {
+	for (uint idx = 1; idx < words.size(); idx++) {
 		if (words[idx].matches == currentMatchesHash) {
 			currentGroupSize++;
 		}
 		else {
-			wordGroups.push_back(std::pair<int,int> (currentWord_idx, currentGroupSize));
+			wordGroups.push_back(std::pair<uint,uint> (currentWord_idx, currentGroupSize));
 			currentGroupSize = 1;
 			currentWord_idx = idx;
 			currentMatchesHash = words[currentWord_idx].matches;
