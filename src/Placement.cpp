@@ -53,6 +53,7 @@ void Placement::phylogenetic_placement() {
 		seeds.push_back(seed);
 	}
 
+	std::cout << "-> Reading sequences." << std::endl;
 	// Read reads
 	ReadManager	readManager(fswm_params::g_readsfname);
 
@@ -67,8 +68,22 @@ void Placement::phylogenetic_placement() {
 		tree.write_jplace_data_beginning();
 	}
 
+	if (fswm_params::g_writeScoring) {
+		std::ofstream results;
+		results.open(fswm_params::g_outfoldername + "scoring_table.txt");
+
+		for (auto genome : fswm_internal::genomeIDsToNames) {		// Write columns names (references to file)
+			results << "\t" << genome.second;
+		}
+		results << std::endl;
+		results.close();
+
+		results.open(fswm_params::g_outfoldername + "scoring_list.txt");
+		results.close();
+	}
+
 	// Compare buckets of reads and genomes
-	std::cout << "-> Compare reads and genomes." << std::endl;
+	std::cout << "-> Comparing reads and genomes." << std::endl;
 	#pragma omp parallel for
 	for (int currentPartition = 0; currentPartition < readManager.get_partitions(); currentPartition++) {
 		if (fswm_params::g_verbose) { std::cout << "-> Starting partition " << currentPartition << std::endl; }
@@ -83,9 +98,9 @@ void Placement::phylogenetic_placement() {
 
 		#pragma omp critical
 		{
-			if (fswm_params::g_verbose) { std::cout << "-> Calculating distances." << std::endl; }
+			std::cout << "\t-> Read partition " << currentPartition << ": Calculating distances." << std::endl;
 			fswm_distances.calculate_fswm_distances();
-			if (fswm_params::g_verbose) { std::cout << "-> Placing reads in reference tree." << std::endl; }
+			std::cout << "\t-> Read partition " << currentPartition << ": Placing reads in tree." << std::endl;
 			fswm_distances.phylogenetic_placement();
 
 			if (fswm_params::g_writeScoring or fswm_params::g_assignmentMode == "APPLES") {

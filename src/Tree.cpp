@@ -556,7 +556,7 @@ seq_id_t Tree::get_rootID() {
 /** Write metainformation of jplace file, such as version, fields, metadata, tree. */
 void Tree::write_jplace_data_beginning() {
 	std::ofstream jPlaceFile;
-	jPlaceFile.open(fswm_params::g_outfoldername + fswm_params::g_outjplacename, std::ios_base::app);
+	jPlaceFile.open(fswm_params::g_outfoldername + fswm_params::g_outjplacename);
 	jPlaceFile << "{\n\t\"version\":3,\n\t"
 		"\"fields\":[\"edge_num\",\"distal_length\",\"pendant_length\",\"like_weight_ratio\",\"likelihood\"],\n"
 		"\t\"metadata\":{\n"

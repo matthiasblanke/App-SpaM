@@ -115,7 +115,7 @@ void Scoring::phylogenetic_placement() {
 /** Write jk-corrected distances between all reads and genomes to file. */
 void Scoring::write_scoring_to_file() {
 	std::ofstream results;
-	results.open(fswm_params::g_outfoldername + "scoring_list.txt");
+	results.open(fswm_params::g_outfoldername + "scoring_list.txt", std::ios_base::app);
 
 	scoringMap_t::iterator it1 = scoringMap.begin();
 	while (it1 != scoringMap.end()) {
@@ -132,12 +132,7 @@ void Scoring::write_scoring_to_file() {
 /** Write jk-corrected distances between reads and genomes to table. */
 void Scoring::write_scoring_to_file_as_table() {
 	std::ofstream results;
-	results.open(fswm_params::g_outfoldername + "scoring_table.txt");
-
-	for (auto genome : fswm_internal::genomeIDsToNames) {		// Write columns names (references to file)
-		results << "\t" << genome.second;
-	}
-	results << std::endl;
+	results.open(fswm_params::g_outfoldername + "scoring_table.txt", std::ios_base::app);
 
 	std::unordered_map<seq_id_t, std::string> seqIDtoNamesMap;
 	seqIDtoNamesMap = fswm_internal::readIDsToNames;

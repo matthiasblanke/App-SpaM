@@ -50,13 +50,13 @@ std::string fswm_params::g_delimiter = "_";
 
 // Additional options
 uint16_t fswm_params::g_threads = 1;
-uint32_t fswm_params::g_readBlockSize = 1000;
+uint32_t fswm_params::g_readBlockSize = 10000;
 bool fswm_params::g_writeHistogram = false;
 bool fswm_params::g_writeScoring = false;
 bool fswm_params::g_writeParameter = false;
 bool fswm_params::g_writeIDs = false;
 double fswm_params::default_distance_new_leaves = 0.001;
-int fswm_params::g_numPatterns = 10;
+int fswm_params::g_numPatterns = 1;
 double fswm_params::g_defaultDistance = 10;
 
 // Initialize global internal mappings between sequence IDs and names.
@@ -306,58 +306,55 @@ bool GlobalParameters::parse_parameters(int argc, char *argv[]) {
 
 bool GlobalParameters::check_parameters() {
 	if(fswm_params::g_weight < 2 || fswm_params::g_weight > 32) {
-		std::cerr << "Weight (-k) must be between 2 and 32"<< std::endl;
+		std::cerr << "ERROR: Weight (-k) must be between 2 and 32"<< std::endl;
 		print_to_console();
 		exit (EXIT_FAILURE);
 	}
 	if(fswm_params::g_spaces < 2 || fswm_params::g_spaces > 32) {
-		std::cerr << "SPACES (-d) must be between 2 and 32"<< std::endl;
+		std::cerr << "ERROR: Number of don't care positions (-d) must be between 2 and 32"<< std::endl;
 		print_to_console();
 		exit (EXIT_FAILURE);
 	}
 	if (fswm_params::g_assignmentMode != "SPAMCOUNT" and fswm_params::g_assignmentMode != "MINDIST" and fswm_params::g_assignmentMode != "LCACOUNT" and fswm_params::g_assignmentMode != "LCADIST" and fswm_params::g_assignmentMode != "APPLES") {
-		std::cerr << "AssignmentMode must be \"SPAMCOUNT\" or \"MINDIST\" or \"LCACOUNT\" or \"LCADIST\" or \"APPLES\"."<< std::endl;
+		std::cerr << "ERROR: AssignmentMode must be \"SPAMCOUNT\" or \"MINDIST\" or \"LCACOUNT\" or \"LCADIST\" or \"APPLES\"."<< std::endl;
 		print_to_console();
 		exit (EXIT_FAILURE);
 	}
 	if (fswm_params::g_readBlockSize < 1 or fswm_params::g_readBlockSize > 200000) {
-		std::cerr << "Choose a block size between 1 and 200000."<< std::endl;
+		std::cerr << "ERROR: Choose a block size between 1 and 200000."<< std::endl;
 		print_to_console();
 		exit (EXIT_FAILURE);
 	}
 	if(fswm_params::g_threads < 1) {
-		std::cerr << "Threads (-t) must be an integer larger than 0."<< std::endl;
+		std::cerr << "ERROR: Threads (-t) must be an integer larger than 0."<< std::endl;
 		print_to_console();
 		exit (EXIT_FAILURE);
 	}
 	std::ifstream f(fswm_params::g_genomesfname.c_str());
 	if (!f.good()) {
-		std::cout << "Please supply an existing file for the genomes." << std::endl;
+		std::cout << "ERROR: Please supply an existing file for the genomes." << std::endl;
 		print_to_console();
-		print_help();
 		exit (EXIT_FAILURE);
 	}
 
 	std::ifstream g(fswm_params::g_readsfname.c_str());
 	if (!g.good()) {
-		std::cout << "Please supply an existing file for the reads." << std::endl;
+		std::cout << "ERROR: Please supply an existing file for the reads." << std::endl;
 		print_to_console();
-		print_help();
 		exit (EXIT_FAILURE);
 	}
 
 	std::ifstream h(fswm_params::g_reftreefname.c_str());
 	if (!h.good() and !(fswm_params::g_reftreefname == "not set")) {
-		std::cout << "Please supply an existing file for reference tree." << std::endl;
+		std::cout << "ERROR: Please supply an existing file for reference tree." << std::endl;
 		print_to_console();
-		print_help();
 		exit (EXIT_FAILURE);
 	}
 	return true;
 }
 
 bool GlobalParameters::print_to_console() {
-	std::cout << "Parameters:" << std::endl;
+	std::cout << std::endl << "Current Parameters:" << std::endl;
 	std::cout << "\tweight  : " << fswm_params::g_weight << std::endl;
 	std::cout << "\tspaces  : " << fswm_params::g_spaces << std::endl;
 	std::cout << "\tthreads : " << fswm_params::g_threads << std::endl;
@@ -430,7 +427,7 @@ The following parameters are necessary:
 
 The following parameters are optional.
 	--outputFolder
-	-o 	Output folder				./results/
+	-o 	Output folder				./
 		Path to folder for all output files.
 
 	--weight
@@ -444,27 +441,37 @@ The following parameters are optional.
 		Match positions (-w) plus don't care positions (-d) equal the
 		overall pattern length.
 
+	--mode
+	-m	Placement-mode 				LCACOUNT
+		One of [MINDIST, SPAMCOUNT, LCADIST, LCACOUNT]
+
+	--unassembled
+	-u  Use unassembled references, see github repository for more information.
+
+	--delimiter
+		Delimiter used for unassembled references.
+
+	--pattern
+	-p	Number of patterns.			1
+
 	--threads
 	 	Number of threads.			1
 
-	--mode
-	-m	Placement-mode 				LCACOUNT
-		Switch between different modes of APP-SpaM:
-		all:		 	"Comare all spaced words against all others"
-		first:	 		"Compare only each spaced word only against a random other spaced word match"
-		best:		    "Compare each spaced word only against highest scoring match"
-
-	--samling
-		Samples the spaced word matches.
+	--sampling
+		Experimental: Samples the spaced word matches.
 
 	--readBlockSize
-	-b	Read block size				100000
+	-b	Read block size				10000
 		Number of reads that are processed in one chunk.
-		Every chunk is read in and processed consecutively.
+
+	--threshold 					0
+	 	Threshold used for filtering spaced word matches. 
 
 Following additional flags exist:
 	-h	Print out help and exit.
 	-v 	Turn on verbose mode with additional information printed to std_out.
+	--write-scores  Write all query-reference distances to files.
+	--write-histogram  Write scores for all spaced word matches to file.
 
 )"""";
 }
