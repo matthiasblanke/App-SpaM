@@ -403,75 +403,55 @@ int GlobalParameters::calculate_filteringThreshold() {
  */
 void GlobalParameters::print_help() {
 	std::cout << R""""(
-------------------------------------------------------------
-
 Execute appspam with:
-	./appspam [parameters]
-
+	./appspam -s <references> -t <tree> -q <queries> [optional parameters]
 ------------------------------------------------------------
-
 A typical call might look like:
 	./appspam -h
 	./appspam -s references.fasta -q query.fasta -t tree.nwk
 	./appspam -s references.fasta -q query.fasta -t tree.nwk -d 10 -w 8
 
 The following parameters are necessary:
-	-s 	Reference sequences.
-		Full path to fasta file with references.
-	-q 	Query sequences.
-		Full path to fasta file with query sequences.
-	-t	Reference tree.
-		File of reference tree in newick format.
-		(Rooted, bifurcating tree in newick format.
-		All leaves must have identical names to reference sequences.)
+    -s 	Reference sequences.
+        Full path to fasta file with references.
+    -q 	Query sequences.
+        Full path to fasta file with query sequences.
+    -t	Reference tree.
+        File of reference tree in newick format.
+        (Rooted, bifurcating tree in newick format.
+        All leaves must have identical names to reference sequences.)
 
 The following parameters are optional.
-	--outputFolder
-	-o 	Output folder				./
-		Path to folder for all output files.
+    -o  --outputFolder      Path to output folder for all output files
 
-	--weight
-	-w	Weight of pattern.			12
-		Number of match positions in pattern. Pattern will be optimized
-		automatically.
+    -w  --weight            Weight of pattern.
 
-	--dontCare
-	-d	Don't care positions. 		32
-		Number of don't care positions in pattern.
-		Match positions (-w) plus don't care positions (-d) equal the
-		overall pattern length.
+    -d  --dontCare          Number of don't care positions.
 
-	--mode
-	-m	Placement-mode 				LCACOUNT
-		One of [MINDIST, SPAMCOUNT, LCADIST, LCACOUNT]
+    -m  --mode              Placement-mode.
+                            One of [MINDIST, SPAMCOUNT, LCADIST, LCACOUNT]
 
-	--unassembled
-	-u  Use unassembled references, see github repository for more information.
+    -u  --unassembled       Use unassembled references, 
+                            see github repository for more information.
 
-	--delimiter
-		Delimiter used for unassembled references.
+        --delimiter         Delimiter used for unassembled references.
+		
+    -p  --pattern           Number of patterns.
 
-	--pattern
-	-p	Number of patterns.			1
+        --threads           Number of threads.
 
-	--threads
-	 	Number of threads.			1
+        --sampling          Experimental: Samples the spaced word matches.
 
-	--sampling
-		Experimental: Samples the spaced word matches.
+    -b  --readBlockSize     Read block size.
 
-	--readBlockSize
-	-b	Read block size				10000
-		Number of reads that are processed in one chunk.
-
-	--threshold 					0
-	 	Threshold used for filtering spaced word matches. 
+        --threshold         Threshold used for filtering spaced word matches. 
 
 Following additional flags exist:
-	-h	Print out help and exit.
-	-v 	Turn on verbose mode with additional information printed to std_out.
-	--write-scores  Write all query-reference distances to files.
-	--write-histogram  Write scores for all spaced word matches to file.
+    -h                      Print out help and exit.
+    -v                      Turn on verbose mode with additional 
+	                        information printed to std_out.
+        --write-scores      Write all query-reference distances to files.
+        --write-histogram   Write scores for all spaced word matches to file.
 
 )"""";
 }
