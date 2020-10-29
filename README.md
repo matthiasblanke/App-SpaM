@@ -10,7 +10,7 @@ _App-SpaM_ will place each of the query sequences into the reference phylogeny a
 We are planning to have _App-SpaM_ also available in _PEWO_, the _**P**lacement **E**valuation **WO**rkflows_<sup id="a3">[3](#f3)</sup>, a tool developed to rapidly test and compare tools for phylogenetic placement.
 
 When using _App-SpaM_, please cite:
-_In preparation_
+[![doi](https://img.shields.io/static/v1?label=doi&message=10.1101/2020.10.19.344986&color=blue)](https://doi.org/10.1101/2020.10.19.344986)
 
 ## Installation
 ### Prerequisites
@@ -105,9 +105,7 @@ Write to matthias.blanke@biologie.uni-goettingen.de
 
 ## Publication
 ### Associated publication
-follows
-### Supplementary materials
-follows
+[![doi](https://img.shields.io/static/v1?label=doi&message=10.1101/2020.10.19.344986&color=blue)](https://doi.org/10.1101/2020.10.19.344986)
 
 ## Links
 <b id="f1">1</b>: C.-A. Leimeister, S. Sohrabi-Jahromi, B. Morgenstern (2017)
