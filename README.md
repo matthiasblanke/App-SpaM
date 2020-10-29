@@ -86,6 +86,7 @@ There are several other parameters that can influence the accuracy, speed, and o
 | `-w`     | `--weight`     | `12`     | Weight of pattern (number of _match positions_ (1s)). Higher weight generally leads to faster computation, but on small datasets it may result in too few spaced words, resulting in low accuracy. |
 | `-d`     | `--dontCare`     | `32`     | Number of _don't care positions_ in pattern (number of 0s). |
 | `-p`     | `--pattern`     | `10`     | Number of patterns used. For every pattern, spaced words are extracted from the sequences. Use fewer patterns for faster running speeds. |
+| `-o`     | `--out_jplace`     | `appspam.jplace`     | Path and name of output jplace file. |
 | `-g`     | `--mode`     | `LCACOUNT`     | Assignment mode determines how a placement position is chosen from the calculated reference-query distances. For more information see paper. Possible values are: `MINDIST`,`SPAMCOUNT`,`LCADIST`,`LCACOUNT`, `APPLES`...|
 | `-u`     | `--unassembled`     |     | Enables support for unassembled references, see below. |
 |      | `--delimiter`     | `"-"`     | Specifies delimiter in reference names when unassembled mode is executed. All reads from the same reference should have this delimiter in their name. They are then regarded as one reference sequence. |

@@ -422,7 +422,7 @@ The following parameters are necessary:
         All leaves must have identical names to reference sequences.)
 
 The following parameters are optional.
-    -o  --outputFolder      Path to output folder for all output files
+    -o  --out_jplace        Path and name to JPlace output file.
 
     -w  --weight            Weight of pattern.
 
