@@ -44,7 +44,7 @@ bool fswm_params::g_verbose = false;
 int fswm_params::g_filteringThreshold = GlobalParameters::calculate_filteringThreshold();
 int fswm_params::g_filteringThresholdMultiplicator = 0;
 bool fswm_params::g_sampling = false;
-int fswm_params::g_minHashLowerLimit = 10000;
+int fswm_params::g_minHashLowerLimit = 10000000;
 bool fswm_params::g_draftGenomes = false;
 std::string fswm_params::g_delimiter = "_";
 
@@ -202,6 +202,7 @@ bool GlobalParameters::parse_parameters(int argc, char *argv[]) {
         { "delimiter", required_argument, 		nullptr, 6   },
         { "write-parameter", no_argument, 		nullptr, 7   },
         { "write-ids", no_argument, 			nullptr, 8   },
+        { "hashlimit", required_argument, 		nullptr, 9   },
         0
     };
 
@@ -294,6 +295,9 @@ bool GlobalParameters::parse_parameters(int argc, char *argv[]) {
 				break;
 			case 8:
 				fswm_params::g_writeIDs = true;
+				break;
+			case 9:
+				fswm_params::g_minHashLowerLimit = atoi(optarg);
 				break;
 			case '?':
 				print_help();

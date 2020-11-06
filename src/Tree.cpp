@@ -101,6 +101,10 @@ bool Tree::parse_newick_tree(std::string treeStr) {
 
 					if (createNewNode) {
 						Node* temp = new Node(nodeName);	// create new leave node and name it
+						if (fswm_internal::namesToGenomeIDs.find(nodeName) == fswm_internal::namesToGenomeIDs.end()) {
+							std::cerr << "The following sequence name is in the tree, but not in the references: " << nodeName  << std::endl;
+							exit (EXIT_FAILURE);
+						}
 						currentNode_pt->add_child(temp);
 						currentDistance_pt = temp;
 					}

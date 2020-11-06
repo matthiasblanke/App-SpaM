@@ -42,8 +42,6 @@ int main(int argc, char *argv[]) {
 	Placement::phylogenetic_placement();
 
 	if (fswm_params::g_writeParameter) { GlobalParameters::save_parameters(); };
-	if (fswm_params::g_writeIDs) { GlobalParameters::write_read_ids_to_file(); };
-	if (fswm_params::g_writeIDs) { GlobalParameters::write_seq_ids_to_file(); };
 
 	std::cout << std::endl << "-> Placement finished. Output files are in the folder: "
 			  << fswm_params::g_outfoldername << std::endl;

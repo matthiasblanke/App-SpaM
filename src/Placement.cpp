@@ -60,6 +60,9 @@ void Placement::phylogenetic_placement() {
 	// Read genomes, create spaced words and organize BucketManagers
 	GenomeManager genomeManager(fswm_params::g_genomesfname, seeds);
 
+	if (fswm_params::g_writeIDs) { GlobalParameters::write_read_ids_to_file(); };
+	if (fswm_params::g_writeIDs) { GlobalParameters::write_seq_ids_to_file(); };
+
 	// Create empty output files
 	Placement::create_output_files();
 
