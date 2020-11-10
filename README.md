@@ -25,11 +25,11 @@ At the moment, _App-SpaM_'s parallelization is performed via OpenMP. Most modern
 ### Installing _App-SpaM_
 On the command line, download the newest version of _App-SpaM_ (alternatively download and unpack the `.zip`-Archive from this Github page):
 ```bash
-git clone https://github.com/matthiasblanke/APP-SpaM
+git clone https://github.com/matthiasblanke/App-SpaM
 ```
 Navigate into the _App-SpaM_ directory, create a build folder, and navigate into it:
 ```bash
-cd APP-SpaM
+cd App-SpaM
 mkdir build
 cd build
 ```
