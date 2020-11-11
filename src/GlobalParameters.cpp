@@ -223,7 +223,7 @@ bool GlobalParameters::parse_parameters(int argc, char *argv[]) {
 	// If no parameters are given
 	if (argc == 1) {
 		print_help();
-		exit (EXIT_FAILURE);
+		exit (EXIT_SUCCESS);
 	}
 
     while ((option_param = getopt_long(argc, argv, possible_params.c_str(), long_options, &index)) != -1) {
@@ -256,7 +256,7 @@ bool GlobalParameters::parse_parameters(int argc, char *argv[]) {
 				break;
 			case 'h':
 				print_help();
-				exit (EXIT_FAILURE);
+				exit (EXIT_SUCCESS);
 				break;
 			case 'b':
 				fswm_params::g_readBlockSize = atoi(optarg);
@@ -297,7 +297,7 @@ bool GlobalParameters::parse_parameters(int argc, char *argv[]) {
 				break;
 			case '?':
 				print_help();
-				exit (EXIT_FAILURE);
+				exit (EXIT_SUCCESS);
       	}
 	}
 
