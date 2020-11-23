@@ -67,6 +67,9 @@ void Placement::phylogenetic_placement() {
 	if (fswm_params::g_assignmentMode != "APPLES") {
 		tree.write_jplace_data_beginning();
 	}
+	else {
+		fswm_params::g_writeScoring = true;
+	}
 
 	if (fswm_params::g_writeScoring) {
 		std::ofstream results;
