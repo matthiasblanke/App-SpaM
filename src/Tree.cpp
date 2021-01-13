@@ -247,6 +247,41 @@ seq_id_t Tree::get_LCA_best_count(countMap_t::iterator &it) {
 	return find_LCA(std::vector<seq_id_t> {first_id, second_id})->ID;
 }
 
+/** Return LCA of top n nodes with most filtered matching k-mers. */
+seq_id_t Tree::get_LCA_best_count_exp(countMap_t::iterator &it, double div) {
+	if (it->second.size() == 0) {
+		return get_rootID();
+	}
+	else if (it->second.size() == 1) {
+		return it->second.begin()->first;
+	}
+
+	count_t first = std::numeric_limits<count_t>::min();
+	seq_id_t first_id = 0;
+	count_t second = std::numeric_limits<count_t>::min();
+	seq_id_t second_id = 0;
+
+	for (auto const &seqIDtoScoring : it->second) {
+		if (seqIDtoScoring.second > first) {
+			second = first;
+			second_id = first_id;
+			first = seqIDtoScoring.second;
+			first_id = seqIDtoScoring.first;
+		}
+		else if (seqIDtoScoring.second > second) {
+			second = seqIDtoScoring.second;
+			second_id = seqIDtoScoring.first;
+		}
+	}
+
+	// If highest count is much higher than second highest count, return id of first instead of LCA
+	if ((first - second) > (first + second)/div) {
+		return first_id;
+	}
+
+	return find_LCA(std::vector<seq_id_t> {first_id, second_id})->ID;
+}
+
 /** Return LCA of top n nodes with smallest similarity scores. */
 seq_id_t Tree::get_LCA_best_score(scoringMap_t::iterator &it) {
 	std::vector<std::pair<scoring_t, seq_id_t>> minimal_scores;

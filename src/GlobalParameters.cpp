@@ -319,11 +319,11 @@ bool GlobalParameters::check_parameters() {
 		print_to_console();
 		exit (EXIT_FAILURE);
 	}
-	if (fswm_params::g_assignmentMode != "SPAMCOUNT" and fswm_params::g_assignmentMode != "MINDIST" and fswm_params::g_assignmentMode != "LCACOUNT" and fswm_params::g_assignmentMode != "LCADIST" and fswm_params::g_assignmentMode != "APPLES") {
+	/*if (fswm_params::g_assignmentMode != "SPAMCOUNT" and fswm_params::g_assignmentMode != "MINDIST" and fswm_params::g_assignmentMode != "LCACOUNT" and fswm_params::g_assignmentMode != "LCADIST" and fswm_params::g_assignmentMode != "APPLES" and fswm_params::g_assignmentMode != "EXP") {
 		std::cerr << "ERROR: AssignmentMode must be \"SPAMCOUNT\" or \"MINDIST\" or \"LCACOUNT\" or \"LCADIST\" or \"APPLES\"."<< std::endl;
 		print_to_console();
 		exit (EXIT_FAILURE);
-	}
+	}*/
 	if (fswm_params::g_readBlockSize < 1 or fswm_params::g_readBlockSize > 200000) {
 		std::cerr << "ERROR: Choose a block size between 1 and 200000."<< std::endl;
 		print_to_console();

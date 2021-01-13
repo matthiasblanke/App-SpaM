@@ -90,6 +90,18 @@ void Scoring::phylogenetic_placement() {
 		else if (fswm_params::g_assignmentMode == "LCADIST") {
 			min_j = tree.get_LCA_best_score(scoringMap_it);
 		}
+		else if (fswm_params::g_assignmentMode == "EXP10") {
+			min_j = tree.get_LCA_best_count_exp(countMap_it, 10);
+		}
+		else if (fswm_params::g_assignmentMode == "EXP6") {
+			min_j = tree.get_LCA_best_count_exp(countMap_it, 6);
+		}
+		else if (fswm_params::g_assignmentMode == "EXP4") {
+			min_j = tree.get_LCA_best_count_exp(countMap_it, 4);
+		}
+		else if (fswm_params::g_assignmentMode == "EXP2") {
+			min_j = tree.get_LCA_best_count_exp(countMap_it, 2);
+		}
 		first = false;
 		readAssignment.push_back(std::pair<seq_id_t, int> (scoringMap_it->first, min_j));  // assign read to some internal leave, determined based on assignment mode
 		readAssignmentTracker[scoringMap_it->first] = true;
