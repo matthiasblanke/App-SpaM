@@ -597,7 +597,6 @@ void Tree::write_jplace_placement_data(std::vector<std::pair<seq_id_t, int>> &re
 	jPlaceFile.open(fswm_params::g_outfoldername + fswm_params::g_outjplacename, std::ios_base::app);
 
 	int i = 0;
-	bool first = true;
 
 	double distal_length = 0;
 	double pendant_length = fswm_params::default_distance_new_leaves;
@@ -605,13 +604,12 @@ void Tree::write_jplace_placement_data(std::vector<std::pair<seq_id_t, int>> &re
 	double dist_current_edge = 0;
 
 	for (auto const& read : readAssignment) {
-		if (first) {
+		if (fswm_internal::jplace_tracking) {
 			;
 		}
 		else {
 			jPlaceFile << ",";
 		}
-
 		
 		// Determine distal and pendant branch lengths
 		if (fswm_params::g_assignmentMode == "MINDIST" or fswm_params::g_assignmentMode == "SPAMCOUNT") {
@@ -639,7 +637,7 @@ void Tree::write_jplace_placement_data(std::vector<std::pair<seq_id_t, int>> &re
 		              "\t\t}";
 		i++;
 		jPlaceFile << "\n";
-		first = false;
+		fswm_internal::jplace_tracking = false;
 	}
 
 	jPlaceFile.close();

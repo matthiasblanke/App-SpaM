@@ -74,7 +74,6 @@ void Scoring::phylogenetic_placement() {
 		readAssignmentTracker[read.first] = false;             // Later on: assign reads that have not been assigned by algorithm to root of tree
 	}
 
-	bool first = true;
    	for (scoringMap_t::iterator scoringMap_it = scoringMap.begin(); scoringMap_it != scoringMap.end(); scoringMap_it++) {		// Iterate through reads
 		min_j = -1;
 
@@ -90,7 +89,6 @@ void Scoring::phylogenetic_placement() {
 		else if (fswm_params::g_assignmentMode == "LCADIST") {
 			min_j = tree.get_LCA_best_score(scoringMap_it);
 		}
-		first = false;
 		readAssignment.push_back(std::pair<seq_id_t, int> (scoringMap_it->first, min_j));  // assign read to some internal leave, determined based on assignment mode
 		readAssignmentTracker[scoringMap_it->first] = true;
 

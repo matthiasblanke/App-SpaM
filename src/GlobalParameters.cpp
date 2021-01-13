@@ -74,6 +74,7 @@ std::unordered_map<seq_id_t, seq_id_t> fswm_internal::IDsToPlacementIDs = std::u
 std::unordered_map<seq_id_t, seq_id_t> fswm_internal::placementIDsToIDs = std::unordered_map<seq_id_t, seq_id_t>();
 
 int fswm_internal::g_numberGenomes = 0;
+bool fswm_internal::jplace_tracking = true;
 
 bool GlobalParameters::save_parameters() {
 	std::ofstream foutstream(fswm_params::g_outfoldername + "fswm_parameters.txt");

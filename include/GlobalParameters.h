@@ -118,6 +118,7 @@ namespace fswm_internal {
 	extern std::unordered_map<seq_id_t, seq_id_t> placementIDsToIDs;
 	extern std::unordered_map<seq_id_t, seq_id_t> IDsToPlacementIDs;
 	extern int g_numberGenomes;
+	extern bool jplace_tracking;
 }
 
 class GlobalParameters {
