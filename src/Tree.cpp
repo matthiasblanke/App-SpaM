@@ -101,6 +101,10 @@ bool Tree::parse_newick_tree(std::string treeStr) {
 
 					if (createNewNode) {
 						Node* temp = new Node(nodeName);	// create new leave node and name it
+						if (fswm_internal::namesToGenomeIDs.find(nodeName) == fswm_internal::namesToGenomeIDs.end()) {
+							std::cerr << "The following sequence name is in the tree, but not in the references: " << nodeName  << std::endl;
+							exit (EXIT_FAILURE);
+						}
 						currentNode_pt->add_child(temp);
 						currentDistance_pt = temp;
 					}
@@ -114,7 +118,7 @@ bool Tree::parse_newick_tree(std::string treeStr) {
 	// Check if tree is unrooted an root arbitrarily at lowest level
 	if (root->children.size() > 2) {
 		if (fswm_params::g_verbose) { std::cout << "\tThe input tree is unrooted, please use a rooted tree."
-			"\n\tThe tree will be unrooted at the implicit trifurcating root now." << std::endl; }
+			"\n\tThe tree will be rooted at the implicit trifurcating root now." << std::endl; }
 
 		// Save children that will be below new subtree and remove from children
 		Node* child2 = root->children[1];
@@ -240,6 +244,41 @@ seq_id_t Tree::get_LCA_best_count(countMap_t::iterator &it) {
 			second_id = seqIDtoScoring.first;
 		}
 	}
+	return find_LCA(std::vector<seq_id_t> {first_id, second_id})->ID;
+}
+
+/** Return LCA of top n nodes with most filtered matching k-mers. */
+seq_id_t Tree::get_LCA_best_count_exp(countMap_t::iterator &it, double div) {
+	if (it->second.size() == 0) {
+		return get_rootID();
+	}
+	else if (it->second.size() == 1) {
+		return it->second.begin()->first;
+	}
+
+	count_t first = std::numeric_limits<count_t>::min();
+	seq_id_t first_id = 0;
+	count_t second = std::numeric_limits<count_t>::min();
+	seq_id_t second_id = 0;
+
+	for (auto const &seqIDtoScoring : it->second) {
+		if (seqIDtoScoring.second > first) {
+			second = first;
+			second_id = first_id;
+			first = seqIDtoScoring.second;
+			first_id = seqIDtoScoring.first;
+		}
+		else if (seqIDtoScoring.second > second) {
+			second = seqIDtoScoring.second;
+			second_id = seqIDtoScoring.first;
+		}
+	}
+
+	// If highest count is much higher than second highest count, return id of first instead of LCA
+	if ((first - second) > (first + second)/div) {
+		return first_id;
+	}
+
 	return find_LCA(std::vector<seq_id_t> {first_id, second_id})->ID;
 }
 

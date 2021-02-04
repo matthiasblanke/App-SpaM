@@ -50,8 +50,7 @@ class Tree {
 
 		seq_id_t get_LCA_best_count(countMap_t::iterator &it);
 		seq_id_t get_LCA_best_score(scoringMap_t::iterator &it);
-		seq_id_t get_LCA_best_weighted(scoringMap_t::iterator &it_score, countMap_t::iterator &it_count);
-
+		seq_id_t get_LCA_best_count_exp(countMap_t::iterator &it, double div);
 
 		// Helper functions for assignment mode methods
 		void fill_internals_min_score();
