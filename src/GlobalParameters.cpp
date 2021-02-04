@@ -39,7 +39,7 @@ std::string fswm_params::g_paramfname = "";
 // General parameters
 uint16_t fswm_params::g_weight = 12;
 uint16_t fswm_params::g_spaces = 32;
-std::string fswm_params::g_assignmentMode = "LCACOUNT";
+std::string fswm_params::g_assignmentMode = "SPAMX";
 bool fswm_params::g_verbose = false;
 int fswm_params::g_filteringThreshold = GlobalParameters::calculate_filteringThreshold();
 int fswm_params::g_filteringThresholdMultiplicator = 0;
@@ -58,6 +58,7 @@ bool fswm_params::g_writeIDs = false;
 double fswm_params::default_distance_new_leaves = 0.001;
 int fswm_params::g_numPatterns = 1;
 double fswm_params::g_defaultDistance = 10;
+double fswm_params::g_spam_X = 4;
 
 // Initialize global internal mappings between sequence IDs and names.
 std::unordered_map<seq_id_t, std::string> fswm_internal::seqIDsToNames = std::unordered_map<seq_id_t, std::string>();
@@ -175,7 +176,7 @@ bool GlobalParameters::load_parameters(std::string filename = "") {
 /** Parse option parameters from parameter file or command line. */
 bool GlobalParameters::parse_parameters(int argc, char *argv[]) {
 	int option_param;
-	std::string possible_params = "l:s:t:q:o:w:d:hm:b:vp:u";
+	std::string possible_params = "l:s:t:q:o:w:d:hm:b:vp:ux:";
 	bool usingParameterfile = false;
 
     int index = -1;
@@ -195,6 +196,7 @@ bool GlobalParameters::parse_parameters(int argc, char *argv[]) {
         { "verbose", no_argument, 				nullptr, 'v' },
         { "pattern", required_argument, 		nullptr, 'p' },
         { "unassembled", no_argument, 			nullptr, 'u' },
+        { "spamx", required_argument, 			nullptr, 'x' },
         { "write-histogram", no_argument, 		nullptr, 2   },
         { "write-scores", no_argument, 			nullptr, 3   },
         { "sampling", no_argument, 				nullptr, 4   },
@@ -271,6 +273,9 @@ bool GlobalParameters::parse_parameters(int argc, char *argv[]) {
 			case 'u':
 				fswm_params::g_draftGenomes = true;
 				break;
+			case 'x':
+				fswm_params::g_spam_X = atoi(optarg);
+				break;
 			case 2:
 				fswm_params::g_writeHistogram = true;
 				break;
@@ -319,11 +324,11 @@ bool GlobalParameters::check_parameters() {
 		print_to_console();
 		exit (EXIT_FAILURE);
 	}
-	/*if (fswm_params::g_assignmentMode != "SPAMCOUNT" and fswm_params::g_assignmentMode != "MINDIST" and fswm_params::g_assignmentMode != "LCACOUNT" and fswm_params::g_assignmentMode != "LCADIST" and fswm_params::g_assignmentMode != "APPLES" and fswm_params::g_assignmentMode != "EXP") {
+	if (fswm_params::g_assignmentMode != "SPAMCOUNT" and fswm_params::g_assignmentMode != "MINDIST" and fswm_params::g_assignmentMode != "LCACOUNT" and fswm_params::g_assignmentMode != "LCADIST" and fswm_params::g_assignmentMode != "APPLES" and fswm_params::g_assignmentMode != "SPAMX") {
 		std::cerr << "ERROR: AssignmentMode must be \"SPAMCOUNT\" or \"MINDIST\" or \"LCACOUNT\" or \"LCADIST\" or \"APPLES\"."<< std::endl;
 		print_to_console();
 		exit (EXIT_FAILURE);
-	}*/
+	}
 	if (fswm_params::g_readBlockSize < 1 or fswm_params::g_readBlockSize > 200000) {
 		std::cerr << "ERROR: Choose a block size between 1 and 200000."<< std::endl;
 		print_to_console();

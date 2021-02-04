@@ -118,7 +118,7 @@ bool Tree::parse_newick_tree(std::string treeStr) {
 	// Check if tree is unrooted an root arbitrarily at lowest level
 	if (root->children.size() > 2) {
 		if (fswm_params::g_verbose) { std::cout << "\tThe input tree is unrooted, please use a rooted tree."
-			"\n\tThe tree will be unrooted at the implicit trifurcating root now." << std::endl; }
+			"\n\tThe tree will be rooted at the implicit trifurcating root now." << std::endl; }
 
 		// Save children that will be below new subtree and remove from children
 		Node* child2 = root->children[1];

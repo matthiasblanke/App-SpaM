@@ -92,6 +92,9 @@ namespace fswm_params {
 	// Branch lengths of placed queries in fast placement mode; deprecated
 	extern double g_defaultDistance;
 
+	// X for SpaM-X placement
+	extern double g_spam_X;
+
 	// Full file names of input files
 	extern std::string g_genomesfname;
 	extern std::string g_reftreefname;
