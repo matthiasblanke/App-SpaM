@@ -439,7 +439,9 @@ The following parameters are optional.
     -d  --dontCare          Number of don't care positions.
 
     -m  --mode              Placement-mode.
-                            One of [MINDIST, SPAMCOUNT, LCADIST, LCACOUNT]
+                            One of [MINDIST, SPAMCOUNT, LCADIST, LCACOUNT, SPAMX]
+
+    -x  --spamx             Threshold when to place at leaves for SPAMX.
 
     -u  --unassembled       Use unassembled references, 
                             see github repository for more information.
