@@ -54,11 +54,7 @@ void PairwiseDistances::pairwise_distances() {
 	}
 
 	std::cout << "-> Reading sequences." << std::endl;
-	// Read reads
-	GenomeManager genomeManager1(fswm_params::g_genomesfname, seeds, "_1");
-
-	// Read genomes, create spaced words and organize BucketManagers
-	GenomeManager genomeManager2(fswm_params::g_genomesfname, seeds, "_2");
+	GenomeManager genomeManager(fswm_params::g_genomesfname, seeds);
 
 	if (fswm_params::g_writeIDs) { GlobalParameters::write_read_ids_to_file(); };
 	if (fswm_params::g_writeIDs) { GlobalParameters::write_seq_ids_to_file(); };
@@ -85,11 +81,9 @@ void PairwiseDistances::pairwise_distances() {
 
 	Scoring fswm_distances = Scoring();
 
-	BucketManager bucketManagerGenomes1 = genomeManager1.get_BucketManager();
+	BucketManager bucketManagerGenomes = genomeManager.get_BucketManager();
 
-	BucketManager bucketManagerGenomes2 = genomeManager2.get_BucketManager();
-	
-	Algorithms::fswm_complete(bucketManagerGenomes1, bucketManagerGenomes2, fswm_distances);
+	Algorithms::fswm_complete(bucketManagerGenomes, fswm_distances);
 
 	fswm_distances.calculate_fswm_distances();
 

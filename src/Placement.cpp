@@ -100,7 +100,7 @@ void Placement::phylogenetic_placement() {
 		Scoring fswm_distances = Scoring();
 
 		BucketManager bucketManagerGenomes = genomeManager.get_BucketManager();
-		Algorithms::fswm_complete(bucketManagerGenomes, bucketManagerReads, fswm_distances);
+		Algorithms::fswm_complete(bucketManagerGenomes, fswm_distances);
 
 		#pragma omp critical
 		{
