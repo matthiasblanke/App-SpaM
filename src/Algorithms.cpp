@@ -90,7 +90,6 @@ bool Algorithms::fswm_complete(BucketManager &genomeBucketManager, BucketManager
 						}
 
 						if (score > fswm_params::g_filteringThreshold) {
-							std::cout << "Found spaced word" << std::endl;
 							count++;
 							int readSeqID = wordsReads[wordRead_it->first + readCounter].seqID;
 							int genomeSeqID = wordsGenomes[wordGenome_it->first + genomeCounter].seqID;
@@ -103,8 +102,6 @@ bool Algorithms::fswm_complete(BucketManager &genomeBucketManager, BucketManager
 							fswm_distances.scoringMap[readSeqID][genomeSeqID] += score;
 							fswm_distances.mismatchCount[readSeqID][genomeSeqID] += mismatches;
 							fswm_distances.spacedWordMatchCount[readSeqID][genomeSeqID] += 1;
-							std::cout << readSeqID << "\t" << genomeSeqID << "\t";
-							std::cout << fswm_distances.spacedWordMatchCount[readSeqID][genomeSeqID] << std::endl;
 						}
 					}
 				}
