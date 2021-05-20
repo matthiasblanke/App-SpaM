@@ -135,10 +135,10 @@ void Scoring::write_scoring_to_file_as_table() {
 	std::ofstream results;
 	results.open(fswm_params::g_outfoldername + "scoring_table.txt", std::ios_base::app);
 
-	std::unordered_map<seq_id_t, std::string> seqIDtoNamesMap;
-	seqIDtoNamesMap = fswm_internal::readIDsToNames;
+	std::unordered_map<seq_id_t, std::string> genomeIDsToNames1;
+	genomeIDsToNames1 = fswm_internal::genomeIDsToNames;
 
-	for (auto read : seqIDtoNamesMap) {		// For all reads: write distances to all genomes to file
+	for (auto read : genomeIDsToNames1) {		// For all reads: write distances to all genomes to file
 		results << read.second;
 
 		if (scoringMap.find(read.first) != scoringMap.end()) {					// If read has distances to any genome

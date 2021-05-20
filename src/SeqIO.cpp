@@ -27,7 +27,7 @@
 seq_id_t SeqIO::seqID_counter = -1;
 
 // Read sequence from fasta file 'filename'
-void SeqIO::read_sequences(std::string fastafname, std::vector<Sequence> &sequences, bool genomes) {
+void SeqIO::read_sequences(std::string fastafname, std::vector<Sequence> &sequences, bool genomes, std::string num) {
     std::ifstream fastafstream(fastafname);
     std::string line;
     std::string read;
@@ -58,6 +58,7 @@ void SeqIO::read_sequences(std::string fastafname, std::vector<Sequence> &sequen
             }
             else {
                 header = header.substr(0, header.find(fswm_params::g_delimiter));
+                header += num;
                 if (fswm_internal::namesToSeqIDs.find(header) != fswm_internal::namesToSeqIDs.end()) {
                     sequences.push_back(Sequence(header, line, SeqIO::seqID_counter));
                 }

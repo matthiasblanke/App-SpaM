@@ -23,6 +23,7 @@
 #include "Scoring.h"
 #include "GlobalParameters.h"
 #include "Placement.h"
+#include "PairwiseDistances.h"
 #include <omp.h>
 
 int main(int argc, char *argv[]) {
@@ -39,7 +40,7 @@ int main(int argc, char *argv[]) {
 	omp_set_dynamic(0);
 	omp_set_num_threads(fswm_params::g_threads);
 
-	Placement::phylogenetic_placement();
+	PairwiseDistances::pairwise_distances();
 
 	if (fswm_params::g_writeParameter) { GlobalParameters::save_parameters(); };
 

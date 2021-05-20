@@ -41,7 +41,7 @@ class GenomeManager {
     	uint32_t genomeCount;
 
 	public:
-		GenomeManager(std::string genomesfname, std::vector<Seed> &seeds);
+		GenomeManager(std::string genomesfname, std::vector<Seed> &seeds, std::string num = "");
 		BucketManager get_BucketManager();
 
 		// Getter and Setter

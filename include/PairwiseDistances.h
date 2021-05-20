@@ -13,21 +13,20 @@
  * author: Matthias Blanke
  * mail  : matthias.blanke@biologie.uni-goettingen.de
  */
+#ifndef FSWM_PAIRWISE_H
+#define FSWM_PAIRWISE_H
 
-#ifndef FSWM_SEQIO_H_
-#define FSWM_SEQIO_H_
+#include <iostream>
+#include <vector>
+#include <string>
+#include <unordered_map>
+#include "Word.h"
 
-#include "Sequence.h"
 
-class SeqIO {
-    public:
-    	static seq_id_t seqID_counter;
-        static void read_sequences(std::string fastafname, std::vector<Sequence> &sequences, bool genomes, std::string num = "");
-       	static void reset_seqID_counter();
+class PairwiseDistances {
+	public:
+		static void pairwise_distances();
+		static void create_output_files();
 };
-
-inline void SeqIO::reset_seqID_counter() {
-	seqID_counter = -1;
-}
 
 #endif

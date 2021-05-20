@@ -20,13 +20,13 @@
 #include "SeqIO.h"
 #include "GlobalParameters.h"
 
-GenomeManager::GenomeManager(std::string genomesfname, std::vector<Seed> &seeds) {
+GenomeManager::GenomeManager(std::string genomesfname, std::vector<Seed> &seeds, std::string num) {
 	if (fswm_params::g_verbose) { std::cout << "-> Reading genomes from file: " << genomesfname << std::endl; }
 
 	bucketManagerGenomes = BucketManager();
 
 	std::vector<Sequence> genomes;
-	SeqIO::read_sequences(genomesfname, genomes, true);
+	SeqIO::read_sequences(genomesfname, genomes, true, num);
 	if (fswm_params::g_verbose) { std::cout << "\t" << fswm_internal::g_numberGenomes << " genomes found and read."<< std::endl; }
 
 	this->genomeCount = genomes.size();
