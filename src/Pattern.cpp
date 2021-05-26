@@ -784,6 +784,9 @@ double Pattern::MaxNumberPattern(int p_weight, int p_length) {
 	double tmpb = Faculty(p_length-p_weight);
 	double tmpc = Faculty(p_weight);
 	double tmp = tmpa / (tmpb*tmpc);
+	if (int(tmp) < 0) {
+		return std::numeric_limits<int>::max();
+	}
 	return tmp;
 }
 
