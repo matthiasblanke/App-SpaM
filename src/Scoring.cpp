@@ -64,14 +64,14 @@ void Scoring::calculate_fswm_distances() {
 }
 
 /** Assign reads to reference tree of genome. */
-void Scoring::phylogenetic_placement() {
+void Scoring::phylogenetic_placement(std::vector<seq_id_t> readIDs) {
 	Tree tree(fswm_params::g_reftreefname);				// Read and create reference tree
 	int min_j;											// Currently minimum assigned genome. -1 for unassigned.
 	countMap_t::iterator countMap_it = spacedWordMatchCount.begin();
 
 	std::unordered_map<seq_id_t, bool> readAssignmentTracker;  // Track which reads were assigned and which not (only reads that have at least one entry are assigned)
-	for (const auto &read : fswm_internal::readIDsToNames) {
-		readAssignmentTracker[read.first] = false;             // Later on: assign reads that have not been assigned by algorithm to root of tree
+	for (const auto readID : readIDs) {
+		readAssignmentTracker[readID] = false;             // Later on: assign reads that have not been assigned by algorithm to root of tree
 	}
 
    	for (scoringMap_t::iterator scoringMap_it = scoringMap.begin(); scoringMap_it != scoringMap.end(); scoringMap_it++) {		// Iterate through reads

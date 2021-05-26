@@ -35,23 +35,23 @@ ReadManager::ReadManager(std::string readsfname) {
 /**
  * Return BucketManager for the next partition of reads from input read sequences.
  */
-void ReadManager::get_next_partition_BucketManager(std::vector<Seed> &seeds, BucketManager &bucketManagerReads) {
-
+std::vector<seq_id_t> ReadManager::get_next_partition_BucketManager(std::vector<Seed> &seeds, BucketManager &bucketManagerReads) {
 	if (fswm_params::g_verbose) { std::cout << "\t-> Creating spaced words for read partition " << currentPartition << std::endl; }
 
-	fswm_internal::readIDsToNames.clear();
-	fswm_internal::namesToReadIDs.clear();
+	std::vector<seq_id_t> readIDs;
 
 	for (int i = 0; i < fswm_params::g_readBlockSize and currentSeq < reads.size(); i++) {
 		reads[currentSeq].fill_buckets(seeds, bucketManagerReads);
 		fswm_internal::readIDsToNames[reads[currentSeq].get_seqID()] = reads[currentSeq].get_header();
 		fswm_internal::namesToReadIDs[reads[currentSeq].get_header()] = reads[currentSeq].get_seqID();		
+		readIDs.push_back(reads[currentSeq].get_seqID());
 		currentSeq++;
 	}
 
 	bucketManagerReads.create_wordGroups();
 
 	currentPartition++;
+	return readIDs;
 }
 
 uint32_t ReadManager::get_partitions() const {

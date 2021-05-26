@@ -43,7 +43,7 @@ class ReadManager {
 
 	public:
 		ReadManager(std::string readsfname);
-		void get_next_partition_BucketManager(std::vector<Seed> &seeds, BucketManager &bucketManagerReads);
+		std::vector<seq_id_t> get_next_partition_BucketManager(std::vector<Seed> &seeds, BucketManager &bucketManagerReads);
 
 		// Getter and Setter
 		std::vector<Sequence>& get_reads();

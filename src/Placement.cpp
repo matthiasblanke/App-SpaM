@@ -95,11 +95,16 @@ void Placement::phylogenetic_placement() {
 		if (fswm_params::g_verbose) { std::cout << "-> Starting partition " << currentPartition << std::endl; }
 
 		BucketManager bucketManagerReads;
-		readManager.get_next_partition_BucketManager(seeds, bucketManagerReads);
+		BucketManager bucketManagerGenomes;
+		std::vector<seq_id_t> readIDs;
+		#pragma omp critical
+		{
+		readIDs = readManager.get_next_partition_BucketManager(seeds, bucketManagerReads);
+		bucketManagerGenomes = genomeManager.get_BucketManager();
+		}
 
 		Scoring fswm_distances = Scoring();
 
-		BucketManager bucketManagerGenomes = genomeManager.get_BucketManager();
 		Algorithms::fswm_complete(bucketManagerGenomes, bucketManagerReads, fswm_distances);
 
 		#pragma omp critical
@@ -107,7 +112,7 @@ void Placement::phylogenetic_placement() {
 			std::cout << "\t-> Read partition " << currentPartition << ": Calculating distances." << std::endl;
 			fswm_distances.calculate_fswm_distances();
 			std::cout << "\t-> Read partition " << currentPartition << ": Placing reads in tree." << std::endl;
-			fswm_distances.phylogenetic_placement();
+			fswm_distances.phylogenetic_placement(readIDs);
 
 			if (fswm_params::g_writeScoring or fswm_params::g_assignmentMode == "APPLES") {
 				fswm_distances.write_scoring_to_file();

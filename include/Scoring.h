@@ -59,7 +59,7 @@ class Scoring {
 		/**
 		 * Assign reads to reference tree of genome.
 		 */
-		void phylogenetic_placement();
+		void phylogenetic_placement(std::vector<seq_id_t> readIDs);
 
 		/*
 		Assign reads to reference tree of genome (only phylo-kmer based)
