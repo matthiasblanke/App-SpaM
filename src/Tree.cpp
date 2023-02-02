@@ -109,7 +109,7 @@ bool Tree::parse_newick_tree(std::string treeStr) {
 						currentDistance_pt = temp;
 					}
 					else {
-						;// currentDistance_pt->name = nodeName;  // update name of existing internal node
+						currentDistance_pt->name = nodeName;  // update name of existing internal node
 					}
 				}
 			}
