@@ -16,6 +16,7 @@
 
 #include "MatchManager.h"
 #include <algorithm>
+#include <limits>
 
 MatchManager::MatchManager() {
 
